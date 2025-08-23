@@ -1,0 +1,32 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "tourism-review-classifier"
+version = "0.0.1"
+description = "An explainable NLP model to classify experiential dimensions (e.g., Regenerative Tourism, Wellness) from Sri Lankan tourist reviews using a fine-tuned transformer architecture."
+authors = [
+  { name = "Your name (or your organization/company/team)" },
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License"
+]
+requires-python = "~=3.10.0"
+
+
+[tool.ruff]
+line-length = 99
+src = ["tourism-review-classifier"]
+include = ["pyproject.toml", "tourism-review-classifier/**/*.py"]
+
+[tool.ruff.lint]
+extend-select = ["I"]  # Add import sorting
+
+[tool.ruff.lint.isort]
+known-first-party = ["tourism-review-classifier"]
+force-sort-within-sections = true
+
