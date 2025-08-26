@@ -5,6 +5,9 @@
 !/data/external/*.dvc
 !/data/external/*.csv
 
+# Environment variables
+.env
+
 # Mac OS-specific storage files
 .DS_Store
 
