@@ -1,10 +1,9 @@
-# Un-ignore all .dvc files
-!*.dvc
-
 # Data
-/data/
-!data/external/*.dvc
-!data/external/
+/data/*
+!/data/external/
+/data/external/*
+!/data/external/*.dvc
+!/data/external/*.csv
 
 # Mac OS-specific storage files
 .DS_Store
