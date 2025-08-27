@@ -1,22 +1,87 @@
 name: explainable-tourism-nlp
 channels:
   - conda-forge
+  - defaults
 dependencies:
+  # Core Python and data science
   - python=3.10
   - pip
-  - typer
-  - loguru
-  - tqdm
-  - ipython
-  - jupyterlab
-  - matplotlib
-  - notebook
-  - numpy
-  - pandas
-  - scikit-learn
-  - ruff
-  - pytest
+  - numpy>=1.24.0
+  - pandas>=2.0.0
+  - scipy>=1.10.0
+  
+  # Visualization and plotting
+  - matplotlib>=3.7.0
+  - seaborn>=0.12.0
+  - plotly>=5.15.0
+  
+  # Jupyter and development
+  - jupyterlab>=4.0.0
+  - notebook>=7.0.0
+  - ipython>=8.0.0
+  
+  # Machine learning and NLP
+  - scikit-learn>=1.3.0
+  - nltk>=3.8.0
+  - spacy>=3.6.0
+  
+  # Deep learning and transformers
+  - pytorch>=2.0.0
+  - torchvision
+  - torchaudio
+  
+  # Development tools
+  - ruff>=0.1.0
+  - pytest>=7.4.0
+  - black>=23.0.0
+  - pre-commit>=3.3.0
+  
+  # Documentation
+  - mkdocs>=1.5.0
+  - mkdocs-material>=9.0.0
+  
+  # Utilities
+  - typer>=0.9.0
+  - loguru>=0.7.0
+  - tqdm>=4.65.0
+  - python-dotenv>=1.0.0
+  
+  # Additional dependencies via pip
   - pip:
-    - python-dotenv
-    - mkdocs
+    # Hugging Face ecosystem
+    - transformers>=4.30.0
+    - datasets>=2.14.0
+    - tokenizers>=0.13.0
+    - accelerate>=0.20.0
+    
+    # Explainable AI
+    - shap>=0.42.0
+    - lime>=0.2.0
+    - captum>=0.6.0
+    
+    # Text processing and visualization
+    - wordcloud>=1.9.0
+    - textblob>=0.17.0
+    - beautifulsoup4>=4.12.0
+    - lxml>=4.9.0
+    
+    # Web deployment
+    - streamlit>=1.25.0
+    - fastapi>=0.100.0
+    - uvicorn>=0.23.0
+    - streamlit-shap>=0.3.0
+    
+    # API and external services
+    - openai>=1.0.0
+    - requests>=2.31.0
+    
+    # Data version control
+    - dvc>=3.20.0
+    
+    # Additional utilities
+    - emoji>=2.8.0
+    - contractions>=0.1.73
+    - unidecode>=1.3.0
+    
+    # Install the project itself
     - -e .
