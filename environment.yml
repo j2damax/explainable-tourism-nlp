@@ -82,6 +82,10 @@ dependencies:
     - emoji>=2.8.0
     - contractions>=0.1.73
     - unidecode>=1.3.0
+
+  # MLflow and Databricks SDK
+  - mlflow>=2.0.0
+  - databricks-sdk>=0.21.0
     
     # Install the project itself
     - -e .
