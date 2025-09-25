@@ -99,6 +99,11 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# ML model artifacts
+notebooks/model_artifacts/
+**/model.pth
+hf_model/
+
 # IPython
 profile_default/
 ipython_config.py
