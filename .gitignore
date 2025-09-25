@@ -1,8 +1,20 @@
 # Ignore environment variable files
 .env
+
 # Data
 /data/*
 !/data/external/
+
+# ML model artifacts and large files
+/notebooks/model_artifacts/
+/model_artifacts/
+/.gitignore.d/
+/hf_model/
+*.pth
+*.pt
+*.bin
+*.onnx
+*.tflite
 /data/external/*
 !/data/external/*.dvc
 !/data/external/*.csv
