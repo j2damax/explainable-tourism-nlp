@@ -51,10 +51,6 @@ class ExplainRequest(BaseModel):
     review_text: str
     top_n_words: int = 10
 
-class ExplainResponse(BaseModel):
-    html: str
-    top_words: Dict[str, List[Dict[str, Any]]]
-
 # Global variables for model, tokenizer, and classifier
 model = None
 tokenizer = None
@@ -66,37 +62,23 @@ async def load_model():
     """Load model and tokenizer from Hugging Face Hub on startup"""
     global model, tokenizer, classifier
     
-    try:
-        logger.info(f"Loading model {MODEL_NAME}...")
-        # Load tokenizer
-        tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-        
-        # Load pre-trained model
-        model = AutoModelForSequenceClassification.from_pretrained(
-            MODEL_NAME,
-            num_labels=NUM_LABELS,
-            problem_type="multi_label_classification"
-        )
-        
-        # Create classification pipeline
-        classifier = pipeline(
-            "text-classification", 
-            model=model, 
-            tokenizer=tokenizer,
-            function_to_apply="sigmoid",
-            top_k=None,
-            device=-1 if not torch.cuda.is_available() else 0
-        )
-        
-        logger.info("Model and tokenizer loaded successfully")
-    except Exception as e:
-        logger.error(f"Failed to load model: {str(e)}")
-        # We'll continue anyway and try to load the model on the first request if needed
+    logger.info(f"Starting API server. Model will be loaded on first request.")
+    
+    # We'll load the model on the first request to make startup faster
+    # and avoid timeouts during container initialization
+    pass
 
 @app.get("/")
 def read_root():
     """Health check endpoint"""
-    return {"status": "active", "model": MODEL_NAME}
+    global model, tokenizer, classifier
+    
+    model_status = "loaded" if model is not None else "not_loaded"
+    return {
+        "status": "active", 
+        "model": MODEL_NAME,
+        "model_status": model_status
+    }
 
 @app.post("/predict", response_model=List[PredictionResult])
 async def predict(request: PredictRequest):
@@ -110,6 +92,8 @@ async def predict(request: PredictRequest):
     # Ensure model is loaded
     if classifier is None:
         try:
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            print(f"Device set to use {device}")
             tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
             model = AutoModelForSequenceClassification.from_pretrained(
                 MODEL_NAME, 
@@ -122,8 +106,9 @@ async def predict(request: PredictRequest):
                 tokenizer=tokenizer,
                 function_to_apply="sigmoid", 
                 top_k=None,
-                device=-1 if not torch.cuda.is_available() else 0
+                device=-1 if device == "cpu" else 0
             )
+            print("Model and classifier initialized successfully")
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to load model: {str(e)}")
     
@@ -133,23 +118,44 @@ async def predict(request: PredictRequest):
         # Run inference
         result = classifier(request.review_text)
         
+        # Print the raw result for debugging
+        print(f"Raw prediction result: {result}")
+        
         # Extract predictions and format response
-        if isinstance(result, list) and len(result) == 1 and isinstance(result[0], dict):
-            # Handle the case where the pipeline returns a list with one dict
-            scores = result[0]
-            
-            # Format output as a list of label-score pairs
-            formatted_results = []
-            
-            for idx, label in enumerate(DIMENSIONS):
-                label_id = f"LABEL_{idx}"
-                score = scores.get(label_id, 0.0)
-                if isinstance(score, torch.Tensor):
-                    score = score.item()
-                formatted_results.append({
-                    "label": label,
-                    "score": float(score)
-                })
+        if isinstance(result, list) and len(result) > 0:
+            if isinstance(result[0], list) and len(result[0]) > 0:
+                # Handle nested list structure [[{...}, {...}, ...]]
+                predictions = result[0]
+                formatted_results = []
+                
+                # Create a mapping from label names to scores
+                label_scores = {item['label']: item['score'] for item in predictions}
+                
+                # Ensure we have results for all dimensions in the expected order
+                for label in DIMENSIONS:
+                    score = label_scores.get(label, 0.0)
+                    if isinstance(score, torch.Tensor):
+                        score = score.item()
+                    formatted_results.append({
+                        "label": label,
+                        "score": float(score)
+                    })
+            elif isinstance(result[0], dict):
+                # Handle the case where the pipeline returns a list with one dict
+                scores = result[0]
+                
+                # Format output as a list of label-score pairs
+                formatted_results = []
+                
+                for idx, label in enumerate(DIMENSIONS):
+                    label_id = f"LABEL_{idx}"
+                    score = scores.get(label_id, 0.0)
+                    if isinstance(score, torch.Tensor):
+                        score = score.item()
+                    formatted_results.append({
+                        "label": label,
+                        "score": float(score)
+                    })
                 
             # Sort by score in descending order
             formatted_results.sort(key=lambda x: x["score"], reverse=True)
@@ -176,14 +182,15 @@ async def predict(request: PredictRequest):
         logger.error(f"Error during prediction: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 
-@app.post("/explain", response_model=ExplainResponse)
+@app.post("/explain")
 async def explain(request: ExplainRequest):
     """
-    Generate SHAP explanations for a review's classification
+    Generate explanations for a review's classification
     
-    This endpoint returns both HTML visualization and top influencing words.
+    This endpoint returns both HTML visualization and top influencing words,
+    using a simple attribution method for reliability.
     """
-    global model, tokenizer, classifier, shap_explainer
+    global model, tokenizer, classifier
     
     # Check if model is loaded
     if model is None or tokenizer is None:
@@ -203,80 +210,152 @@ async def explain(request: ExplainRequest):
                 device=-1 if not torch.cuda.is_available() else 0
             )
         except Exception as e:
+            logger.error(f"Failed to load model: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Failed to load model: {str(e)}")
     
     try:
-        # Tokenize the input
+        # Get the input text
         review_text = request.review_text
-        inputs = tokenizer(
-            review_text, 
-            return_tensors="pt",
-            truncation=True, 
-            padding=True, 
-            max_length=MAX_LENGTH
-        )
         
-        # Create a simplified tokenize function for SHAP
-        def model_predict(inputs_text):
-            inputs_encoded = tokenizer(
-                inputs_text, 
+        # Tokenize the text by word (use simple space splitting for visualization)
+        # NOTE: This is not the same as model tokenization, it's just for display
+        words = review_text.split()
+        if len(words) < 2:
+            raise ValueError("Review text must contain at least 2 words for explanation")
+            
+        # Generate word importance for all dimensions using simpler method
+        dimension_scores = {}
+        for i, dimension in enumerate(DIMENSIONS):
+            dimension_scores[dimension] = []
+        
+        # 1. Get the baseline prediction for the full text
+        with torch.no_grad():
+            inputs = tokenizer(
+                review_text, 
                 return_tensors="pt",
                 truncation=True, 
                 padding=True, 
                 max_length=MAX_LENGTH
             )
+            outputs = model(**inputs)
+            predictions = torch.sigmoid(outputs.logits)
+            baseline_scores = predictions.detach().numpy()[0]
+        
+        # 2. For each word, measure its importance by removing it
+        for i, word in enumerate(words):
+            if len(words) <= 1:  # Skip if only one word
+                continue
+                
+            # Create text with this word removed
+            words_without_i = words.copy()
+            words_without_i.pop(i)
+            modified_text = " ".join(words_without_i)
+            
+            # Get prediction without the word
             with torch.no_grad():
-                outputs = model(**inputs_encoded)
-                predictions = torch.sigmoid(outputs.logits)
-            return predictions.detach().numpy()
+                mod_inputs = tokenizer(
+                    modified_text, 
+                    return_tensors="pt",
+                    truncation=True, 
+                    padding=True, 
+                    max_length=MAX_LENGTH
+                )
+                mod_outputs = model(**mod_inputs)
+                mod_predictions = torch.sigmoid(mod_outputs.logits)
+                mod_scores = mod_predictions.detach().numpy()[0]
+            
+            # For each dimension, calculate importance as difference in scores
+            for dim_idx, dimension in enumerate(DIMENSIONS):
+                importance = float(baseline_scores[dim_idx] - mod_scores[dim_idx])
+                dimension_scores[dimension].append({
+                    "word": word,
+                    "value": importance,
+                    "is_positive": importance > 0
+                })
         
-        # Create a SHAP explainer
-        # For this example, we'll use the Partition explainer which is more suitable for text data
-        if shap_explainer is None:
-            shap_explainer = shap.Explainer(
-                model_predict, 
-                tokenizer=lambda x: x.split()
-            )
-        
-        # Get SHAP values
-        shap_values = shap_explainer([review_text])
-        
-        # Create visualization HTML
-        words = review_text.split()
-        shap_values_for_text = shap_values[0]
-        
-        # Generate SHAP force plot HTML
-        force_plot_html = shap.plots.force(
-            shap_values_for_text[0], 
-            feature_names=words,
-            matplotlib=False,
-            show=False,
-            out_names=DIMENSIONS
-        )
-        
-        # Get top words for each dimension
+        # 3. For each dimension, sort words by absolute importance and take top N
         top_words = {}
-        for i, dimension in enumerate(DIMENSIONS):
-            # Extract SHAP values for this dimension
-            dim_shap_values = shap_values_for_text[0, :, i]
-            
-            # Get top N words with highest absolute SHAP values
-            top_indices = np.argsort(np.abs(dim_shap_values))[-request.top_n_words:][::-1]
-            top_words_for_dim = []
-            
-            for idx in top_indices:
-                if idx < len(words):
-                    top_words_for_dim.append({
-                        "word": words[idx],
-                        "value": float(dim_shap_values[idx]),
-                        "is_positive": bool(dim_shap_values[idx] > 0)
-                    })
-            
-            top_words[dimension] = top_words_for_dim
+        for dimension in DIMENSIONS:
+            if dimension_scores[dimension]:
+                # Sort by absolute importance (largest effect first)
+                sorted_words = sorted(
+                    dimension_scores[dimension],
+                    key=lambda x: abs(x["value"]),
+                    reverse=True
+                )
+                # Take top N words
+                top_words[dimension] = sorted_words[:request.top_n_words]
+            else:
+                top_words[dimension] = []
         
+        # 4. Create visualization using matplotlib
+        try:
+            import matplotlib
+            matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
+            from io import BytesIO
+            import base64
+            
+            # Create visualization for the top dimension
+            top_dim_idx = np.argmax(baseline_scores)
+            top_dimension = DIMENSIONS[top_dim_idx]
+            
+            # Extract top words for visualization
+            top_words_for_viz = top_words[top_dimension]
+            
+            # Create figure
+            fig, ax = plt.subplots(figsize=(12, 6))
+            
+            # Prepare data for visualization
+            viz_words = [item["word"] for item in top_words_for_viz[:10]]
+            viz_values = [item["value"] for item in top_words_for_viz[:10]]
+            
+            # Create horizontal bar chart
+            bars = ax.barh(
+                viz_words,
+                viz_values,
+                color=['#FF4444' if v > 0 else '#3366CC' for v in viz_values]
+            )
+            
+            # Add labels and title
+            ax.set_title(f"Words influencing '{top_dimension}'", fontsize=14)
+            ax.set_xlabel("Impact on classification score", fontsize=12)
+            
+            # Add a vertical line at x=0
+            ax.axvline(x=0, color='gray', linestyle='-', alpha=0.7)
+            
+            # Add value labels
+            for bar in bars:
+                width = bar.get_width()
+                label_x_pos = width + 0.01 if width > 0 else width - 0.01
+                ax.text(
+                    label_x_pos, 
+                    bar.get_y() + bar.get_height()/2, 
+                    f'{width:.3f}',
+                    va='center',
+                    ha='left' if width > 0 else 'right',
+                    color='black'
+                )
+            
+            # Convert plot to HTML image
+            buffer = BytesIO()
+            fig.tight_layout()
+            fig.savefig(buffer, format='png', dpi=100, bbox_inches='tight')
+            buffer.seek(0)
+            img_str = base64.b64encode(buffer.read()).decode()
+            html = f'<img src="data:image/png;base64,{img_str}" style="width:100%;max-width:800px"/>'
+            plt.close(fig)
+            
+        except Exception as viz_error:
+            logger.error(f"Error creating visualization: {str(viz_error)}")
+            html = f"<p>Could not generate visualization: {str(viz_error)}</p>"
+        
+        # Return the HTML and top words in the format expected by the frontend
         return {
-            "html": force_plot_html,
-            "top_words": top_words
+            "explanation": {
+                "html": html,
+                "top_words": top_words
+            }
         }
         
     except Exception as e:

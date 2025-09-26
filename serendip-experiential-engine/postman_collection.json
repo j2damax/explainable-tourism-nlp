@@ -1,0 +1,328 @@
+{
+	"info": {
+		"_postman_id": "f7910a1f-6d41-4b26-ae5a-e7c0e6d4c984",
+		"name": "Serendip Experiential Engine API",
+		"description": "A collection for testing the Serendip Experiential Engine API endpoints. This API provides tourism review classification and explainable AI insights.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}",
+					"host": [
+						"{{baseUrl}}"
+					]
+				},
+				"description": "Check if the API is running and the model is loaded"
+			},
+			"response": []
+		},
+		{
+			"name": "Predict - Eco Tourism",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"review_text\": \"We loved the eco-friendly resort that used solar power and served organic local food. Their conservation efforts were impressive and we participated in a beach cleanup activity organized by the hotel.\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/predict",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"predict"
+					]
+				},
+				"description": "Classify a tourism review into experiential dimensions"
+			},
+			"response": []
+		},
+		{
+			"name": "Predict - Wellness",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"review_text\": \"The yoga retreat by the beach offered amazing Ayurvedic treatments and meditation sessions that completely refreshed me. Each morning started with sunrise yoga and the spa treatments used local herbs.\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/predict",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"predict"
+					]
+				},
+				"description": "Classify a wellness-focused tourism review"
+			},
+			"response": []
+		},
+		{
+			"name": "Predict - Culinary",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"review_text\": \"The cooking class in Galle was the highlight of our trip! We visited the local market with the chef to select fresh spices and ingredients before learning to prepare traditional Sri Lankan curry, hoppers, and sambols.\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/predict",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"predict"
+					]
+				},
+				"description": "Classify a culinary-focused tourism review"
+			},
+			"response": []
+		},
+		{
+			"name": "Predict - Adventure",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"review_text\": \"We hired a local guide who took us hiking through remote villages in the Knuckles Mountain Range where we stayed with families in homestays. No tourists, no beaten paths - just authentic connections with locals who showed us hidden waterfalls.\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/predict",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"predict"
+					]
+				},
+				"description": "Classify an adventure-focused tourism review"
+			},
+			"response": []
+		},
+		{
+			"name": "Explain - Eco Tourism",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"review_text\": \"We loved the eco-friendly resort that used solar power and served organic local food. Their conservation efforts were impressive and we participated in a beach cleanup activity.\",\n  \"top_n_words\": 5\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/explain",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"explain"
+					]
+				},
+				"description": "Generate SHAP explanations for an eco-tourism review"
+			},
+			"response": []
+		},
+		{
+			"name": "Explain - Wellness",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"review_text\": \"The yoga retreat by the beach offered amazing Ayurvedic treatments and meditation sessions that completely refreshed me.\",\n  \"top_n_words\": 5\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/explain",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"explain"
+					]
+				},
+				"description": "Generate SHAP explanations for a wellness-focused review"
+			},
+			"response": []
+		},
+		{
+			"name": "Error Test - Empty Review",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"review_text\": \"\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/predict",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"predict"
+					]
+				},
+				"description": "Test how the API handles an empty review text"
+			},
+			"response": []
+		},
+		{
+			"name": "Error Test - Missing Review",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"text\": \"This has the wrong field name\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/predict",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"predict"
+					]
+				},
+				"description": "Test how the API handles a missing review field"
+			},
+			"response": []
+		},
+		{
+			"name": "Error Test - Invalid JSON",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"review_text\": \"This JSON is invalid"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/predict",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"predict"
+					]
+				},
+				"description": "Test how the API handles invalid JSON"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Pre-request script to set environment variables or perform setup",
+					"// Example: Set a timestamp for this request",
+					"pm.environment.set(\"currentTimestamp\", new Date().toISOString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script to check common response patterns",
+					"",
+					"// Test if response is valid JSON",
+					"pm.test(\"Response is valid JSON\", function() {",
+					"    pm.response.to.be.json;",
+					"});",
+					"",
+					"// Test if response time is acceptable",
+					"pm.test(\"Response time is acceptable\", function() {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});",
+					"",
+					"// Test if status code is successful or has expected error code",
+					"pm.test(\"Status code is as expected\", function() {",
+					"    if (pm.response.code === 200) {",
+					"        pm.response.to.have.status(200);",
+					"    } else if (pm.response.code === 422) {",
+					"        pm.response.to.have.status(422); // Validation error",
+					"    } else if (pm.response.code === 500) {",
+					"        pm.response.to.have.status(500); // Server error",
+					"    }",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"description": "Base URL for the API endpoints"
+		},
+		{
+			"key": "ecoTourismReview",
+			"value": "We loved the eco-friendly resort that used solar power and served organic local food.",
+			"description": "Sample eco-tourism review"
+		},
+		{
+			"key": "wellnessReview",
+			"value": "The yoga retreat by the beach offered amazing Ayurvedic treatments and meditation sessions.",
+			"description": "Sample wellness review"
+		}
+	]
+}
