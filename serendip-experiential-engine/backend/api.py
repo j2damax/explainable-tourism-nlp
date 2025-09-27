@@ -303,28 +303,37 @@ async def explain(request: ExplainRequest):
             # Extract top words for visualization
             top_words_for_viz = top_words[top_dimension]
             
-            # Create figure
-            fig, ax = plt.subplots(figsize=(12, 6))
+            # Create figure with a larger size for better visualization
+            fig, ax = plt.subplots(figsize=(16, 8))
             
             # Prepare data for visualization
             viz_words = [item["word"] for item in top_words_for_viz[:10]]
             viz_values = [item["value"] for item in top_words_for_viz[:10]]
             
-            # Create horizontal bar chart
+            # Create horizontal bar chart with improved styling
             bars = ax.barh(
                 viz_words,
                 viz_values,
-                color=['#FF4444' if v > 0 else '#3366CC' for v in viz_values]
+                color=['#FF4444' if v > 0 else '#3366CC' for v in viz_values],
+                height=0.7,  # Slightly thinner bars for better spacing
+                edgecolor='black',  # Add outline for better visibility
+                linewidth=0.5,
+                alpha=0.8
             )
             
-            # Add labels and title
-            ax.set_title(f"Words influencing '{top_dimension}'", fontsize=14)
-            ax.set_xlabel("Impact on classification score", fontsize=12)
+            # Add labels and title with improved styling
+            ax.set_title(f"Words influencing '{top_dimension}'", fontsize=16, fontweight='bold')
+            ax.set_xlabel("Impact on classification score", fontsize=14)
             
-            # Add a vertical line at x=0
-            ax.axvline(x=0, color='gray', linestyle='-', alpha=0.7)
+            # Improve grid and background
+            ax.set_axisbelow(True)  # Put gridlines below the bars
+            ax.grid(axis='x', linestyle='--', alpha=0.7)
+            ax.set_facecolor('#f9f9f9')  # Light background
             
-            # Add value labels
+            # Add a vertical line at x=0 with improved styling
+            ax.axvline(x=0, color='black', linestyle='-', alpha=0.7, linewidth=1.5)
+            
+            # Add value labels with improved styling
             for bar in bars:
                 width = bar.get_width()
                 label_x_pos = width + 0.01 if width > 0 else width - 0.01
@@ -334,16 +343,34 @@ async def explain(request: ExplainRequest):
                     f'{width:.3f}',
                     va='center',
                     ha='left' if width > 0 else 'right',
-                    color='black'
+                    color='black',
+                    fontweight='bold',
+                    fontsize=10
                 )
             
-            # Convert plot to HTML image
+            # Add legend to explain colors
+            from matplotlib.patches import Patch
+            legend_elements = [
+                Patch(facecolor='#FF4444', edgecolor='black', label='Increases score'),
+                Patch(facecolor='#3366CC', edgecolor='black', label='Decreases score')
+            ]
+            ax.legend(handles=legend_elements, loc='lower right')
+            
+            # Convert plot to HTML image with higher resolution
             buffer = BytesIO()
             fig.tight_layout()
-            fig.savefig(buffer, format='png', dpi=100, bbox_inches='tight')
+            fig.savefig(buffer, format='png', dpi=150, bbox_inches='tight', transparent=False)
             buffer.seek(0)
             img_str = base64.b64encode(buffer.read()).decode()
-            html = f'<img src="data:image/png;base64,{img_str}" style="width:100%;max-width:800px"/>'
+            
+            # Create HTML with both inline image and standalone image for flexibility
+            html = f"""
+            <div style="text-align: center;">
+                <h3>Words influencing '{top_dimension}'</h3>
+                <img src="data:image/png;base64,{img_str}" style="width:100%; max-width:1200px; border: 1px solid #ddd; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" />
+                <p style="margin-top: 10px; font-style: italic;">Red bars indicate words that increase the prediction score, blue bars decrease it.</p>
+            </div>
+            """
             plt.close(fig)
             
         except Exception as viz_error:

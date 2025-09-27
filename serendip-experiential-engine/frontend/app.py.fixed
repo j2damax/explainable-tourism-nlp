@@ -1,0 +1,618 @@
+import streamlit as stimport streamlit as st
+
+import pandas as pdimport pandas as pd
+
+import numpy as npimport numpy as np
+
+import plotly.express as pximport plotly.express as px
+
+import streamlit.components.v1 as componentsimport streamlit.components.v1 as components
+
+import jsonimport json
+
+
+
+# Import our modules# Import our modules
+
+from api_service import check_health, get_dimensions, analyze_reviewfr                        # Display word impact visualization using HTML
+
+import UI_CONFIG, API_CONFIG, DIMENSIONS, SAMPLE_REVIEWS, SCORE_THRESHOLDS                        shap_html = result["explanation"]["html"]
+
+                        
+
+# Import GenAI benchmark module                        # Directly render the HTML content with full width and sufficient height
+
+try:                        st.subheader("Word Impact on Prediction")
+
+    from genai_module import run_genai_benchmark, compare_results                        
+
+    GENAI_AVAILABLE = UI_CONFIG["genai_enabled"]                        # Add a container with styling to ensure the visualization is properly sized
+
+except ImportError:                        with st.container():
+
+    GENAI_AVAILABLE = False                            st.markdown("""
+
+                            <style>
+
+# Set page config                            .shap-container {
+
+st.set_page_config(                                width: 100%;
+
+    page_title=UI_CONFIG["page_title"],                                overflow-x: hidden;
+
+    page_icon=UI_CONFIG["page_icon"],                                padding: 10px;
+
+    layout=UI_CONFIG["layout"],                            }
+
+    initial_sidebar_state=UI_CONFIG["initial_sidebar_state"],                            .shap-container img {
+
+)                                width: 100%;
+
+                            }
+
+# Load custom CSS                            </style>
+
+with open('styles.css') as f:                            """, unsafe_allow_html=True)
+
+    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)                            
+
+                            # Use a larger height and disable scrolling for better viewing
+
+# Check API health at startup                            components.html(f'<div class="shap-container">{shap_html}</div>', height=500, scrolling=False)
+
+api_status = check_health()                            
+
+if not api_status["available"]:                        # Add some explanation about how to interpret the visualizationg import UI_CONFIG, API_CONFIG, DIMENSIONS, SAMPLE_REVIEWS, SCORE_THRESHOLDS
+
+    st.warning("⚠️ Backend API not available. Some features may not work correctly.")from api_service import check_health, get_dimensions, analyze_review
+
+elif not api_status["model_loaded"]:
+
+    st.info("ℹ️ Model is still loading. First analysis may take longer than usual.")# Import GenAI benchmark module
+
+try:
+
+# App header    from genai_module import run_genai_benchmark, compare_results
+
+st.markdown('<div class="main-header">Serendip Experiential Engine</div>', unsafe_allow_html=True)    GENAI_AVAILABLE = UI_CONFIG["genai_enabled"]
+
+st.markdown('<div class="sub-header">Analyze Sri Lankan Tourism Experiences</div>', unsafe_allow_html=True)except ImportError:
+
+    GENAI_AVAILABLE = False
+
+description = "This application analyzes tourism reviews to identify key experiential dimensions in Sri Lankan tourism:"
+
+for dim in DIMENSIONS:# Set page config
+
+    description += f"\n* {dim['icon']} **{dim['name']}**: {dim['description']}"st.set_page_config(
+
+    page_title=UI_CONFIG["page_title"],
+
+st.markdown(description)    page_icon=UI_CONFIG["page_icon"],
+
+    layout=UI_CONFIG["layout"],
+
+# Sidebar    initial_sidebar_state=UI_CONFIG["initial_sidebar_state"],
+
+st.sidebar.image(UI_CONFIG["logo_url"], use_container_width=True))
+
+st.sidebar.markdown("## About")
+
+st.sidebar.info(# Load custom CSS
+
+    "Serendip Experiential Engine uses NLP and explainable AI to help tourism "with open('styles.css') as f:
+
+    "stakeholders understand visitor experiences and preferences through advanced text analytics."    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+)
+
+# Check API health at startup
+
+# Main application logicapi_status = check_health()
+
+with st.container():if not api_status["available"]:
+
+    st.markdown("## 📝 Enter a Tourism Review")    st.warning("⚠️ Backend API not available. Some features may not work correctly.")
+
+    elif not api_status["model_loaded"]:
+
+    # Sample reviews from config    st.info("ℹ️ Model is still loading. First analysis may take longer than usual.")
+
+    sample_select = st.selectbox("Try a sample review or write your own:", 
+
+                               ["Write my own"] + SAMPLE_REVIEWS)# App header
+
+    st.markdown('<div class="main-header">Serendip Experiential Engine</div>', unsafe_allow_html=True)
+
+    if sample_select == "Write my own":st.markdown('<div class="sub-header">Analyze Sri Lankan Tourism Experiences</div>', unsafe_allow_html=True)
+
+        review_text = st.text_area("Enter your review:", 
+
+                                  height=150,description = "This application analyzes tourism reviews to identify key experiential dimensions in Sri Lankan tourism:"
+
+                                  placeholder="Describe your tourism experience in Sri Lanka...")for dim in DIMENSIONS:
+
+    else:    description += f"\n* {dim['icon']} **{dim['name']}**: {dim['description']}"
+
+        review_text = sample_select
+
+        st.text_area("Review text:", sample_select, height=150)st.markdown(description)
+
+    
+
+    # Initialize session state for caching# Sidebar
+
+    if 'analysis_cache' not in st.session_state:st.sidebar.image(UI_CONFIG["logo_url"], use_container_width=True)
+
+        st.session_state.analysis_cache = {}st.sidebar.markdown("## About")
+
+    st.sidebar.info(
+
+    # Analyze button    "Serendip Experiential Engine uses NLP and explainable AI to help tourism "
+
+    if st.button("Analyze Experience Dimensions", type="primary"):    "stakeholders understand visitor experiences and preferences through advanced text analytics."
+
+        if not review_text:)
+
+            st.warning("Please enter a review to analyze.")
+
+        else:# Note: These functions are now imported from api_service.py
+
+            # Check cache first
+
+            if review_text in st.session_state.analysis_cache:# Main application logic
+
+                result = st.session_state.analysis_cache[review_text]with st.container():
+
+                st.success("Analysis retrieved from cache!")    st.markdown("## 📝 Enter a Tourism Review")
+
+            else:    
+
+                with st.spinner('Analyzing review...'):    # Sample reviews from config
+
+                    # Call backend API    
+
+                    result = analyze_review(review_text)    sample_select = st.selectbox("Try a sample review or write your own:", 
+
+                                                    ["Write my own"] + SAMPLE_REVIEWS)
+
+                    # Cache the result if successful    
+
+                    if result:    if sample_select == "Write my own":
+
+                        st.session_state.analysis_cache[review_text] = result        review_text = st.text_area("Enter your review:", 
+
+                                              height=150,
+
+            if result:                                  placeholder="Describe your tourism experience in Sri Lanka...")
+
+                st.success("Analysis complete!")    else:
+
+                        review_text = sample_select
+
+                # Display results        st.text_area("Review text:", sample_select, height=150)
+
+                st.markdown("## 📊 Experience Dimension Analysis")    
+
+                    # Initialize session state for caching
+
+                col1, col2 = st.columns(2)    if 'analysis_cache' not in st.session_state:
+
+                        st.session_state.analysis_cache = {}
+
+                with col1:    
+
+                    # Create a bar chart of dimension scores    # Analyze button
+
+                    dimensions = list(result["predictions"].keys())    if st.button("Analyze Experience Dimensions", type="primary"):
+
+                    scores = list(result["predictions"].values())        if not review_text:
+
+                                st.warning("Please enter a review to analyze.")
+
+                    # Convert scores to percentages        else:
+
+                    scores_pct = [round(score * 100, 1) for score in scores]            # Check cache first
+
+                                if review_text in st.session_state.analysis_cache:
+
+                    # Create dataframe for plotting                result = st.session_state.analysis_cache[review_text]
+
+                    df_scores = pd.DataFrame({                st.success("Analysis retrieved from cache!")
+
+                        'Dimension': dimensions,            else:
+
+                        'Score': scores_pct                with st.spinner('Analyzing review...'):
+
+                    })                    # Call backend API
+
+                                        result = analyze_review(review_text)
+
+                    fig = px.bar(                    
+
+                        df_scores,                    # Cache the result if successful
+
+                        y='Dimension',                    if result:
+
+                        x='Score',                        st.session_state.analysis_cache[review_text] = result
+
+                        orientation='h',            
+
+                        color='Score',            if result:
+
+                        color_continuous_scale='Viridis',                    st.success("Analysis complete!")
+
+                        labels={'Score': 'Confidence Score (%)'},                    
+
+                        text='Score'                    # Display results
+
+                    )                    st.markdown("## 📊 Experience Dimension Analysis")
+
+                                        
+
+                    fig.update_layout(                    col1, col2 = st.columns(2)
+
+                        xaxis_title="Confidence Score (%)",                    
+
+                        yaxis_title=None,                    with col1:
+
+                        height=300                        # Create a bar chart of dimension scores
+
+                    )                        dimensions = list(result["predictions"].keys())
+
+                                            scores = list(result["predictions"].values())
+
+                    st.plotly_chart(fig, use_container_width=True)                        
+
+                                        # Convert scores to percentages
+
+                with col2:                        scores_pct = [round(score * 100, 1) for score in scores]
+
+                    # Find top dimension                        
+
+                    top_dim_name = max(result["predictions"].items(), key=lambda x: x[1])[0]                        # Create dataframe for plotting
+
+                    top_dim = top_dim_name                        df_scores = pd.DataFrame({
+
+                    top_score = result["predictions"][top_dim_name]                            'Dimension': dimensions,
+
+                                                'Score': scores_pct
+
+                    # Get the corresponding dimension info                        })
+
+                    top_dim_info = next((d for d in DIMENSIONS if d["name"] == top_dim_name), None)                        
+
+                                            fig = px.bar(
+
+                    # Display the top dimension card                            df_scores,
+
+                    st.markdown(f"### {top_dim_info['icon']} Top Dimension")                            y='Dimension',
+
+                                                x='Score',
+
+                    st.markdown(f"""                            orientation='h',
+
+                    <div class="dimension-card">                            color='Score',
+
+                        <div class="dimension-score">{round(top_score * 100)}%</div>                            color_continuous_scale='Viridis',
+
+                        <div class="dimension-name">{top_dim_name}</div>                            labels={'Score': 'Confidence Score (%)'},
+
+                        <div class="dimension-desc">{top_dim_info['description']}</div>                            title='Experience Dimension Confidence Scores'
+
+                    </div>                        )
+
+                    """, unsafe_allow_html=True)                        
+
+                                            fig.update_layout(
+
+                    # Display top influential words                            height=400, 
+
+                    st.markdown("### 📊 Key Words")                            yaxis={'categoryorder':'total ascending'}
+
+                                            )
+
+                    if "explanation" in result and "top_words" in result["explanation"] and top_dim in result["explanation"]["top_words"]:                        
+
+                        # Create table of top words and their importance                        st.plotly_chart(fig, use_container_width=True)
+
+                        words = [item["word"] for item in result["explanation"]["top_words"][top_dim]]                    
+
+                        values = [round(item["value"] * 100, 1) for item in result["explanation"]["top_words"][top_dim]]                    with col2:
+
+                                                st.markdown("### Key Influencing Factors")
+
+                        # Create DataFrame                        st.info("These words and phrases most strongly influenced the classification:")
+
+                        df_words = pd.DataFrame({                        
+
+                            "Word": words,                        # Show the top dimension
+
+                            "Impact %": values                        top_dim = max(result["predictions"].items(), key=lambda x: x[1])[0]
+
+                        })                        
+
+                                                st.markdown(f"#### Top Dimension: {top_dim}")
+
+                        st.dataframe(df_words, use_container_width=True, hide_index=True)                        
+
+                                        if "explanation" in result and "top_words" in result["explanation"] and top_dim in result["explanation"]["top_words"]:
+
+                # SHAP Visualization Section                            # Create table of top words and their importance
+
+                st.markdown("## 🔍 Explainable AI Visualization")                            words = [item["word"] for item in result["explanation"]["top_words"][top_dim]]
+
+                st.markdown("### SHAP Force Plot")                            values = [round(item["value"] * 100, 1) for item in result["explanation"]["top_words"][top_dim]]
+
+                st.info("This visualization shows how each word contributes to the prediction for each dimension.")                            is_positive = [item.get("is_positive", True) for item in result["explanation"]["top_words"][top_dim]]
+
+                                            
+
+                if "explanation" in result and "html" in result["explanation"]:                            df_words = pd.DataFrame({
+
+                    # Display word impact visualization using HTML                                'Word': words,
+
+                    shap_html = result["explanation"]["html"]                                'Importance': values,
+
+                                                    'Impact': ['Positive' if pos else 'Negative' for pos in is_positive]
+
+                    # Directly render the HTML content with improved styling                            })
+
+                    st.subheader("Word Impact on Prediction")                            
+
+                                                st.dataframe(
+
+                    # Add custom CSS to make the visualization larger and more visible                                df_words.sort_values(by='Importance', ascending=False),
+
+                    st.markdown("""                                hide_index=True,
+
+                    <style>                                use_container_width=True
+
+                    .shap-container {                            )
+
+                        width: 100%;                        else:
+
+                        overflow-x: hidden;                            st.write("Explanation data not available")
+
+                        padding: 10px;                    
+
+                    }                    # SHAP Visualization Section
+
+                    .shap-container img {                    st.markdown("## 🔍 Explainable AI Visualization")
+
+                        width: 100%;                    st.markdown("### SHAP Force Plot")
+
+                        max-height: none !important;                    st.info("This visualization shows how each word contributes to the prediction for each dimension.")
+
+                    }                    
+
+                    </style>                    if "explanation" in result and "html" in result["explanation"]:
+
+                    """, unsafe_allow_html=True)                        # Display word impact visualization using HTML
+
+                                            shap_html = result["explanation"]["html"]
+
+                    # Use a larger height and disable scrolling for better viewing                        
+
+                    components.html(f'<div class="shap-container">{shap_html}</div>', height=500, scrolling=False)                        # Directly render the HTML content with improved styling
+
+                                            st.subheader("Word Impact on Prediction")
+
+                    # Add some explanation about how to interpret the visualization                        
+
+                    st.caption("**How to interpret:** Red words push the prediction higher, blue words push it lower. The width of the bar indicates the magnitude of the impact.")                        # Add custom CSS to make the visualization larger and more visible
+
+                else:                        st.markdown("""
+
+                    st.warning("SHAP visualization data not available.")                        <style>
+
+                                        .shap-container {
+
+                # GenAI Comparison Section                            width: 100%;
+
+                st.markdown("## 🤖 GenAI vs BERT Comparison")                            overflow-x: hidden;
+
+                                            padding: 10px;
+
+                if GENAI_AVAILABLE:                        }
+
+                    with st.spinner("Running GPT-4 few-shot classification..."):                        .shap-container img {
+
+                        try:                            width: 100%;
+
+                            # Run GenAI benchmark                            max-height: none !important;
+
+                            genai_results = run_genai_benchmark(review_text)                        }
+
+                                                    </style>
+
+                            # Compare with BERT results                        """, unsafe_allow_html=True)
+
+                            comparison = compare_results(result["predictions"], genai_results)                        
+
+                                                    # Use a larger height and disable scrolling for better viewing
+
+                            # Show results                        components.html(f'<div class="shap-container">{shap_html}</div>', height=500, scrolling=False)
+
+                            col1, col2 = st.columns(2)                            
+
+                                                    # Add some explanation about how to interpret the visualization
+
+                            with col1:                        st.caption("**How to interpret:** Red words push the prediction higher, blue words push it lower. The width of the bar indicates the magnitude of the impact.")
+
+                                st.markdown("### BERT Classification")                    else:
+
+                                # Convert scores to categories for easier comparison                        st.warning("SHAP visualization data not available.")
+
+                                bert_categories = {}                    
+
+                                for dim, score in result["predictions"].items():                    # GenAI Comparison Section
+
+                                    if score > SCORE_THRESHOLDS["high"]:                    st.markdown("## 🤖 GenAI vs BERT Comparison")
+
+                                        category = "HIGH"                    
+
+                                    elif score > SCORE_THRESHOLDS["medium"]:                    if GENAI_AVAILABLE:
+
+                                        category = "MEDIUM"                        with st.spinner("Running GPT-4 few-shot classification..."):
+
+                                    else:                            try:
+
+                                        category = "LOW"                                # Run GenAI benchmark
+
+                                    bert_categories[dim] = category                                genai_results = run_genai_benchmark(review_text)
+
+                                                                
+
+                                # Create dataframe                                # Compare with BERT results
+
+                                bert_df = pd.DataFrame({                                comparison = compare_results(result["predictions"], genai_results)
+
+                                    "Dimension": list(result["predictions"].keys()),                                
+
+                                    "Score": [f"{round(score * 100)}%" for score in result["predictions"].values()],                                # Show results
+
+                                    "Category": list(bert_categories.values())                                col1, col2 = st.columns(2)
+
+                                })                                
+
+                                st.dataframe(bert_df, hide_index=True, use_container_width=True)                                with col1:
+
+                                                                st.markdown("### BERT Classification")
+
+                            with col2:                                    # Convert scores to categories for easier comparison
+
+                                st.markdown("### GenAI Classification (GPT-4)")                                    bert_categories = {}
+
+                                # Skip metadata and error keys                                    for dim, score in result["predictions"].items():
+
+                                genai_dims = {k: v for k, v in genai_results.items()                                         if score > SCORE_THRESHOLDS["high"]:
+
+                                            if k not in ["metadata", "error"]}                                            category = "HIGH"
+
+                                                                        elif score > SCORE_THRESHOLDS["medium"]:
+
+                                # Create dataframe                                            category = "MEDIUM"
+
+                                genai_df = pd.DataFrame({                                        else:
+
+                                    "Dimension": list(genai_dims.keys()),                                            category = "LOW"
+
+                                    "Category": list(genai_dims.values())                                        bert_categories[dim] = category
+
+                                })                                    
+
+                                st.dataframe(genai_df, hide_index=True, use_container_width=True)                                    # Create dataframe
+
+                                                                bert_df = pd.DataFrame({
+
+                            # Agreement metrics                                        "Dimension": list(result["predictions"].keys()),
+
+                            agreement = comparison["agreement_percentage"]                                        "Score": [f"{round(score * 100)}%" for score in result["predictions"].values()],
+
+                            st.metric("Model Agreement", f"{round(agreement)}%",                                         "Category": list(bert_categories.values())
+
+                                     delta=None)                                    })
+
+                                                                st.dataframe(bert_df, hide_index=True, use_container_width=True)
+
+                            # Comparison table                                
+
+                            st.markdown("### 📊 Model Comparison")                                with col2:
+
+                                                                st.markdown("### GenAI Classification (GPT-4)")
+
+                            comp_data = {                                    # Skip metadata and error keys
+
+                                "Metric": [                                    genai_dims = {k: v for k, v in genai_results.items() 
+
+                                    "Inference Time",                                                 if k not in ["metadata", "error"]}
+
+                                    "Cost per 1K Reviews",                                     
+
+                                    "Reproducibility",                                    # Create dataframe
+
+                                    "Explainability",                                    genai_df = pd.DataFrame({
+
+                                    "Customizability"                                        "Dimension": list(genai_dims.keys()),
+
+                                ],                                        "Category": list(genai_dims.values())
+
+                                "BERT": [                                    })
+
+                                    comparison["cost_comparison"]["bert"]["inference_time"],                                    st.dataframe(genai_df, hide_index=True, use_container_width=True)
+
+                                    comparison["cost_comparison"]["bert"]["cost_per_1k_reviews"],                                
+
+                                    comparison["cost_comparison"]["bert"]["reproducibility"],                                # Agreement metrics
+
+                                    "High (SHAP visualization)",                                agreement = comparison["agreement_percentage"]
+
+                                    "High (can fine-tune on custom data)"                                st.metric("Model Agreement", f"{round(agreement)}%", 
+
+                                ],                                         delta=None)
+
+                                "GenAI (GPT-4)": [                                
+
+                                    comparison["cost_comparison"]["genai"]["inference_time"],                                # Comparison table
+
+                                    comparison["cost_comparison"]["genai"]["cost_per_1k_reviews"],                                st.markdown("### 📊 Model Comparison")
+
+                                    comparison["cost_comparison"]["genai"]["reproducibility"],                                
+
+                                    "Medium (rationale but no word-level)",                                comp_data = {
+
+                                    "Medium (prompt engineering)"                                    "Metric": [
+
+                                ]                                        "Inference Time", 
+
+                            }                                        "Cost per 1K Reviews", 
+
+                                                                    "Reproducibility",
+
+                            comp_df = pd.DataFrame(comp_data)                                        "Explainability",
+
+                            st.dataframe(comp_df, hide_index=True, use_container_width=True)                                        "Customizability"
+
+                                                                ],
+
+                            # Tokens used                                    "BERT": [
+
+                            st.caption(f"GPT-4 tokens used: {genai_results.get('metadata', {}).get('tokens_used', 'N/A')}")                                        comparison["cost_comparison"]["bert"]["inference_time"],
+
+                                                                    comparison["cost_comparison"]["bert"]["cost_per_1k_reviews"],
+
+                        except Exception as e:                                        comparison["cost_comparison"]["bert"]["reproducibility"],
+
+                            st.error(f"Error in GenAI comparison: {str(e)}")                                        "High (SHAP visualization)",
+
+                else:                                        "High (can fine-tune on custom data)"
+
+                    st.warning("GenAI comparison not available. Make sure you have the OpenAI API key set in the environment.")                                    ],
+
+                                    "GenAI (GPT-4)": [
+
+# Footer                                        comparison["cost_comparison"]["genai"]["inference_time"],
+
+st.markdown("---")                                        comparison["cost_comparison"]["genai"]["cost_per_1k_reviews"],
+
+st.markdown('<div class="info-text">Serendip Experiential Engine | Powered by Explainable AI</div>', unsafe_allow_html=True)                                        comparison["cost_comparison"]["genai"]["reproducibility"],
+                                        "Medium (rationale but no word-level)",
+                                        "Medium (prompt engineering)"
+                                    ]
+                                }
+                                
+                                comp_df = pd.DataFrame(comp_data)
+                                st.dataframe(comp_df, hide_index=True, use_container_width=True)
+                                
+                                # Tokens used
+                                st.caption(f"GPT-4 tokens used: {genai_results.get('metadata', {}).get('tokens_used', 'N/A')}")
+                                
+                            except Exception as e:
+                                st.error(f"Error in GenAI comparison: {str(e)}")
+                    else:
+                        st.warning("GenAI comparison not available. Make sure you have the OpenAI API key set in the environment.")
+
+# Footer
+st.markdown("---")
+st.markdown('<div class="info-text">Serendip Experiential Engine | Powered by Explainable AI</div>', unsafe_allow_html=True)

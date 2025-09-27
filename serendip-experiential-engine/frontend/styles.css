@@ -1,0 +1,56 @@
+/* 
+ * Styles for Serendip Experiential Engine Frontend
+ */
+
+/* Main headers */
+.main-header {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1E88E5;
+    margin-bottom: 1rem;
+}
+
+.sub-header {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #424242;
+    margin-bottom: 1rem;
+}
+
+.info-text {
+    font-size: 1rem;
+    color: #616161;
+}
+
+/* Card styling */
+.card {
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.dimension-card {
+    border-left: 4px solid #1E88E5;
+    padding-left: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Visualization containers */
+.chart-container {
+    margin: 1rem 0;
+}
+
+.explanation-container {
+    padding: 1rem;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+}
+
+/* Footer */
+.footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+}

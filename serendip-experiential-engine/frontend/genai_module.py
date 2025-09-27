@@ -7,36 +7,39 @@ import json
 import openai
 from typing import Dict, List, Any
 
+# Import configuration
+from config import DIMENSIONS, SCORE_THRESHOLDS, SAMPLE_REVIEWS, OPENAI_MODEL_DEFAULT, COST_PER_1K_TOKENS
+
 # Initialize OpenAI client
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY", ""))
 
-# Define example reviews and their classifications
+# Define example reviews and their classifications based on the samples from config
 EXAMPLE_REVIEWS = [
     {
-        "review": "We loved the eco-friendly resort that used solar power and served organic local food. Their conservation efforts were impressive!",
+        "review": SAMPLE_REVIEWS[0],  # Eco-friendly resort
         "dimensions": {
-            "Regenerative & Eco-Tourism": "HIGH", 
-            "Integrated Wellness": "LOW", 
-            "Immersive Culinary": "MEDIUM",
-            "Off-the-Beaten-Path Adventure": "LOW"
+            DIMENSIONS[0]["name"]: "HIGH",  # Regenerative & Eco-Tourism
+            DIMENSIONS[1]["name"]: "LOW",   # Integrated Wellness
+            DIMENSIONS[2]["name"]: "MEDIUM", # Immersive Culinary
+            DIMENSIONS[3]["name"]: "LOW"    # Off-the-Beaten-Path Adventure
         }
     },
     {
-        "review": "The yoga retreat by the beach offered amazing Ayurvedic treatments and meditation sessions that completely refreshed me.",
+        "review": SAMPLE_REVIEWS[1],  # Yoga retreat
         "dimensions": {
-            "Regenerative & Eco-Tourism": "LOW", 
-            "Integrated Wellness": "HIGH", 
-            "Immersive Culinary": "LOW",
-            "Off-the-Beaten-Path Adventure": "LOW"
+            DIMENSIONS[0]["name"]: "LOW",   # Regenerative & Eco-Tourism
+            DIMENSIONS[1]["name"]: "HIGH",  # Integrated Wellness
+            DIMENSIONS[2]["name"]: "LOW",   # Immersive Culinary
+            DIMENSIONS[3]["name"]: "LOW"    # Off-the-Beaten-Path Adventure
         }
     },
     {
-        "review": "We hiked through remote villages in the mountains, staying with local families and seeing waterfalls that few tourists visit.",
+        "review": SAMPLE_REVIEWS[3],  # Remote villages hiking
         "dimensions": {
-            "Regenerative & Eco-Tourism": "MEDIUM", 
-            "Integrated Wellness": "LOW", 
-            "Immersive Culinary": "LOW",
-            "Off-the-Beaten-Path Adventure": "HIGH"
+            DIMENSIONS[0]["name"]: "MEDIUM", # Regenerative & Eco-Tourism
+            DIMENSIONS[1]["name"]: "LOW",    # Integrated Wellness
+            DIMENSIONS[2]["name"]: "LOW",    # Immersive Culinary
+            DIMENSIONS[3]["name"]: "HIGH"    # Off-the-Beaten-Path Adventure
         }
     }
 ]
@@ -52,20 +55,17 @@ def run_genai_benchmark(review_text: str) -> Dict[str, Any]:
         Dictionary with classifications and metadata
     """
     # Construct the prompt with examples (few-shots)
-    system_prompt = """
-    You are an AI trained to classify tourism reviews based on four experiential dimensions:
-    1. Regenerative & Eco-Tourism: Travel focused on positive social/environmental impact
-    2. Integrated Wellness: Journeys combining physical and mental well-being
-    3. Immersive Culinary: Experiences centered on authentic local cuisine
-    4. Off-the-Beaten-Path Adventure: Exploration of less-crowded natural landscapes
+    system_prompt = "You are an AI trained to classify tourism reviews based on four experiential dimensions:\n"
     
-    For each dimension, classify the review as:
-    - HIGH: Strong presence of this dimension
-    - MEDIUM: Some presence of this dimension
-    - LOW: Little to no presence of this dimension
+    # Add dimensions from config
+    for i, dim in enumerate(DIMENSIONS, 1):
+        system_prompt += f"{i}. {dim['name']}: {dim['description']}\n"
     
-    Return only the JSON output with your classifications.
-    """
+    system_prompt += "\nFor each dimension, classify the review as:\n"
+    system_prompt += "- HIGH: Strong presence of this dimension\n"
+    system_prompt += "- MEDIUM: Some presence of this dimension\n"
+    system_prompt += "- LOW: Little to no presence of this dimension\n\n"
+    system_prompt += "Return only the JSON output with your classifications."
     
     # Create examples text
     examples_text = "Here are some examples of classified reviews:\n\n"
@@ -76,12 +76,12 @@ def run_genai_benchmark(review_text: str) -> Dict[str, Any]:
     user_prompt = f"{examples_text}\nREVIEW: {review_text}\n\nCLASSIFICATION:"
     
     try:
-        # Get model from environment or use gpt-3.5-turbo as default (more affordable)
-        model = os.environ.get("OPENAI_MODEL", "gpt-3.5-turbo")
+        # Get model from environment or use default from config
+        model = os.environ.get("OPENAI_MODEL", OPENAI_MODEL_DEFAULT)
         
         # Make API call
         response = client.chat.completions.create(
-            model=model,  # Use model from environment variable
+            model=model,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
@@ -105,21 +105,13 @@ def run_genai_benchmark(review_text: str) -> Dict[str, Any]:
                 json_str = raw_result[json_start:json_end]
                 result = json.loads(json_str)
             else:
-                # If extraction fails, create a structured response
-                result = {
-                    "Regenerative & Eco-Tourism": "UNKNOWN",
-                    "Integrated Wellness": "UNKNOWN",
-                    "Immersive Culinary": "UNKNOWN",
-                    "Off-the-Beaten-Path Adventure": "UNKNOWN",
-                    "error": "Failed to parse classification"
-                }
+                # If extraction fails, create a structured response with dimension names from config
+                result = {dim["name"]: "UNKNOWN" for dim in DIMENSIONS}
+                result["error"] = "Failed to parse classification"
         
         # Add metadata
-        model = os.environ.get("OPENAI_MODEL", "gpt-3.5-turbo")
-        # Calculate cost based on model
-        cost_per_1k = 0.001  # Default rate for gpt-3.5-turbo
-        if "gpt-4" in model:
-            cost_per_1k = 0.06  # Rate for gpt-4
+        # Use cost per token from config
+        cost_per_1k = COST_PER_1K_TOKENS.get(model, COST_PER_1K_TOKENS[OPENAI_MODEL_DEFAULT])
             
         result["metadata"] = {
             "model": model,
@@ -130,31 +122,19 @@ def run_genai_benchmark(review_text: str) -> Dict[str, Any]:
         return result
     
     except Exception as e:
-        return {
-            "Regenerative & Eco-Tourism": "ERROR",
-            "Integrated Wellness": "ERROR",
-            "Immersive Culinary": "ERROR",
-            "Off-the-Beaten-Path Adventure": "ERROR",
-            "error": str(e)
-        }
+        # Create error response using dimension names from config
+        error_response = {dim["name"]: "ERROR" for dim in DIMENSIONS}
+        error_response["error"] = str(e)
+        return error_response
 
 
 def compare_results(bert_results: Dict[str, float], genai_results: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Compare BERT and GenAI classification results
-    
-    Args:
-        bert_results: Dictionary with BERT scores (0-1)
-        genai_results: Dictionary with GenAI classifications (HIGH, MEDIUM, LOW)
-        
-    Returns:
-        Dictionary with comparison metrics
-    """
-    # Map GenAI categorical values to numeric for comparison
+    """Compare BERT and GenAI classification results."""
+    # Map GenAI categorical values to numeric for comparison using config
     category_to_numeric = {
-        "HIGH": 0.85,
-        "MEDIUM": 0.5,
-        "LOW": 0.15,
+        "HIGH": SCORE_THRESHOLDS["high"],
+        "MEDIUM": SCORE_THRESHOLDS["medium"],
+        "LOW": SCORE_THRESHOLDS["low"],
         "ERROR": 0.0,
         "UNKNOWN": 0.0
     }
@@ -172,11 +152,11 @@ def compare_results(bert_results: Dict[str, float], genai_results: Dict[str, str
         genai_category = genai_results.get(dim, "UNKNOWN")
         genai_score = category_to_numeric.get(genai_category, 0.0)
         
-        # Map BERT score to category for comparison
+        # Map BERT score to category for comparison using thresholds from config
         bert_category = "LOW"
-        if bert_score > 0.7:
+        if bert_score > SCORE_THRESHOLDS["high"]:
             bert_category = "HIGH"
-        elif bert_score > 0.3:
+        elif bert_score > SCORE_THRESHOLDS["medium"]:
             bert_category = "MEDIUM"
         
         # Check if categories agree
