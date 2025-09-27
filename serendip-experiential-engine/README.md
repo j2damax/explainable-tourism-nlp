@@ -20,11 +20,7 @@ serendip-experiential-engine/
 │   └── requirements.txt    # Frontend dependencies
 ├── notebooks/              # Jupyter notebooks
 │   └── api_usage_example.ipynb # Example of programmatic API usage
-├── tests/                  # Unit and integration tests
-│   ├── test_api.py         # Tests for API endpoints
-│   └── run_tests.sh        # Script to run tests
 ├── Makefile                # Helpful commands for development
-├── pytest.ini              # Configuration for pytest
 └── docker-compose.yml      # Service orchestration
 ```
 

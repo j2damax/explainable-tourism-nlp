@@ -39,13 +39,6 @@ format:
 	ruff format
 
 
-
-## Run tests
-.PHONY: test
-test:
-	python -m pytest tests
-
-
 ## Set up Python interpreter environment
 .PHONY: create_environment
 create_environment:

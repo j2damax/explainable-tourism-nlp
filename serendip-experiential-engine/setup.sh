@@ -80,14 +80,8 @@ echo -e "\n${YELLOW}Services:${NC}"
 echo -e "  - Backend API: ${GREEN}http://localhost:8000${NC}"
 echo -e "  - Frontend UI: ${GREEN}http://localhost:8501${NC}"
 
-echo -e "\n${YELLOW}Testing:${NC}"
-echo -e "  - Test API with Python: ${GREEN}python test_api.py${NC}"
-echo -e "  - Test API with Bash:   ${GREEN}./test_serendip_api.sh${NC}"
-echo -e "  - Test API with Postman: Import ${GREEN}postman_collection.json${NC}"
-
 echo -e "\n${YELLOW}Documentation:${NC}"
 echo -e "  - API docs: ${GREEN}http://localhost:8000/docs${NC}"
-echo -e "  - Testing guide: ${GREEN}postman_testing_guide.md${NC}"
 
 echo -e "\n${BLUE}======================================================${NC}"
 echo -e "${GREEN}Setup complete! Enjoy your Serendip Experiential Engine!${NC}"
