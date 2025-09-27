@@ -10,8 +10,13 @@ from typing import Dict, List, Any
 # Import configuration
 from config import DIMENSIONS, SCORE_THRESHOLDS, SAMPLE_REVIEWS, OPENAI_MODEL_DEFAULT, COST_PER_1K_TOKENS
 
-# Initialize OpenAI client
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY", ""))
+# Initialize OpenAI client with API key validation
+api_key = os.environ.get("OPENAI_API_KEY", "")
+if not api_key:
+    print("WARNING: OpenAI API key not found in environment variables.")
+    print("GenAI comparison functionality will not be available.")
+
+client = openai.OpenAI(api_key=api_key)
 
 # Define example reviews and their classifications based on the samples from config
 EXAMPLE_REVIEWS = [
@@ -54,6 +59,13 @@ def run_genai_benchmark(review_text: str) -> Dict[str, Any]:
     Returns:
         Dictionary with classifications and metadata
     """
+    # Check if API key is available
+    if not api_key:
+        result = {dim["name"]: "API_KEY_MISSING" for dim in DIMENSIONS}
+        result["error"] = "OpenAI API key not set in environment variables"
+        result["metadata"] = {"model": "none", "tokens_used": 0, "estimated_cost": 0.0}
+        return result
+    
     # Construct the prompt with examples (few-shots)
     system_prompt = "You are an AI trained to classify tourism reviews based on four experiential dimensions:\n"
     
