@@ -4,10 +4,11 @@ import numpy as np
 import plotly.express as px
 import streamlit.components.v1 as components
 import json
+import os
 
 # Import our modules
 from api_service import check_health, get_dimensions, analyze_review
-from config import UI_CONFIG, API_CONFIG, DIMENSIONS, SAMPLE_REVIEWS, SCORE_THRESHOLDS
+from config import UI_CONFIG, API_CONFIG, DIMENSIONS, SAMPLE_REVIEWS, SCORE_THRESHOLDS, OPENAI_MODEL_DEFAULT
 
 # Import GenAI benchmark module
 try:
@@ -263,7 +264,9 @@ with st.container():
                                 st.dataframe(bert_df, hide_index=True, width="stretch")
                             
                             with col2:
-                                st.markdown("### GenAI Classification (GPT-4)")
+                                # Get model name from results metadata or from config
+                                model_name = genai_results.get("metadata", {}).get("model", os.environ.get("OPENAI_MODEL", OPENAI_MODEL_DEFAULT))
+                                st.markdown(f"### GenAI Classification ({model_name})")
                                 # Skip metadata and error keys
                                 genai_dims = {k: v for k, v in genai_results.items() 
                                             if k not in ["metadata", "error"]}
@@ -280,38 +283,8 @@ with st.container():
                             st.metric("Model Agreement", f"{round(agreement)}%", 
                                      delta=None)
                             
-                            # Comparison table
-                            st.markdown("### 📊 Model Comparison")
-                            
-                            comp_data = {
-                                "Metric": [
-                                    "Inference Time", 
-                                    "Cost per 1K Reviews", 
-                                    "Reproducibility",
-                                    "Explainability",
-                                    "Customizability"
-                                ],
-                                "BERT": [
-                                    comparison["cost_comparison"]["bert"]["inference_time"],
-                                    comparison["cost_comparison"]["bert"]["cost_per_1k_reviews"],
-                                    comparison["cost_comparison"]["bert"]["reproducibility"],
-                                    "High (SHAP visualization)",
-                                    "High (can fine-tune on custom data)"
-                                ],
-                                "GenAI (GPT-4)": [
-                                    comparison["cost_comparison"]["genai"]["inference_time"],
-                                    comparison["cost_comparison"]["genai"]["cost_per_1k_reviews"],
-                                    comparison["cost_comparison"]["genai"]["reproducibility"],
-                                    "Medium (rationale but no word-level)",
-                                    "Medium (prompt engineering)"
-                                ]
-                            }
-                            
-                            comp_df = pd.DataFrame(comp_data)
-                            st.dataframe(comp_df, hide_index=True, width="stretch")
-                            
                             # Tokens used
-                            st.caption(f"GPT-4 tokens used: {genai_results.get('metadata', {}).get('tokens_used', 'N/A')}")
+                            st.caption(f"{model_name} tokens used: {genai_results.get('metadata', {}).get('tokens_used', 'N/A')}")
                             
                         except Exception as e:
                             st.error(f"Error in GenAI comparison: {str(e)}")
