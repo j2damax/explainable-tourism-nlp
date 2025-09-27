@@ -93,10 +93,10 @@ Frontend:
 
 ## Integrating with the ML Model
 
-This application is designed to work with the tourism-review-classifier model. To integrate:
+This application is designed to work with the Hugging Face model j2damax/serendip-travel-classifier. To integrate:
 
-1. Import the trained model in the backend
-2. Replace the mock prediction logic with actual model inference
-3. Generate SHAP values for explanations
+1. Import the trained model in the backend from Hugging Face Hub
+2. Set up the prediction pipeline for multi-label classification
+3. Generate explanations using the word impact analysis
 
 See the main project README for details on model training and evaluation.
