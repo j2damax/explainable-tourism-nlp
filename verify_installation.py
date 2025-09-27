@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Installation verification script for the Aria-Core-ANN project.
+Installation verification script for the Serendip Experiential Engine project.
 This script checks if all required packages are properly installed.
 """
 
@@ -28,7 +28,7 @@ def check_package(package_name: str, import_name: str = None) -> Tuple[bool, str
 
 def main():
     """Main verification function."""
-    print("🔍 Verifying Aria-Core-ANN Project Installation")
+    print("🔍 Verifying Serendip Experiential Engine Project Installation")
     print("=" * 50)
     
     # Core packages to check
@@ -36,44 +36,21 @@ def main():
         # Core data science
         ("numpy", "numpy"),
         ("pandas", "pandas"),
-        ("scipy", "scipy"),
         
         # Visualization
         ("matplotlib", "matplotlib"),
-        ("seaborn", "seaborn"),
         ("plotly", "plotly"),
         
-        # Jupyter
-        ("jupyterlab", "jupyterlab"),
-        ("notebook", "notebook"),
-        ("ipython", "ipython"),
-        
-        # Machine learning
-        ("scikit-learn", "sklearn"),
-        ("nltk", "nltk"),
-        ("spacy", "spacy"),
         
         # Deep learning
         ("torch", "torch"),
-        ("torchvision", "torchvision"),
-        ("torchaudio", "torchaudio"),
         
         # Hugging Face
         ("transformers", "transformers"),
-        ("datasets", "datasets"),
-        ("tokenizers", "tokenizers"),
-        ("accelerate", "accelerate"),
+        ("huggingface-hub", "huggingface_hub"),
         
         # Explainable AI
         ("shap", "shap"),
-        ("lime", "lime"),
-        ("captum", "captum"),
-        
-        # Text processing
-        ("wordcloud", "wordcloud"),
-        ("textblob", "textblob"),
-        ("beautifulsoup4", "bs4"),
-        ("lxml", "lxml"),
         
         # Web deployment
         ("streamlit", "streamlit"),
@@ -84,28 +61,12 @@ def main():
         # API and services
         ("openai", "openai"),
         ("requests", "requests"),
-        
-        # Data version control
-        ("dvc", "dvc"),
-        
-        # Development tools
-        ("ruff", "ruff"),
-        ("pytest", "pytest"),
-        ("black", "black"),
-        ("pre-commit", "pre_commit"),
-        
-        # Documentation
-        ("mkdocs", "mkdocs"),
-        ("mkdocs-material", "mkdocs_material"),
+        ("pydantic", "pydantic"),
         
         # Utilities
-        ("typer", "typer"),
-        ("loguru", "loguru"),
-        ("tqdm", "tqdm"),
         ("python-dotenv", "dotenv"),
-        ("emoji", "emoji"),
-        ("contractions", "contractions"),
-        ("unidecode", "unidecode"),
+        ("loguru", "loguru"),
+        
     ]
     
     # Check each package
@@ -126,11 +87,13 @@ def main():
     
     if successful == total:
         print("\n🎉 All packages installed successfully!")
-        print("🚀 You're ready to start working on the Aria-Core-ANN project!")
+        print("🚀 You're ready to start working on the Serendip Experiential Engine project!")
         print("\nNext steps:")
-        print("1. Run 'jupyter lab' to start Jupyter")
-        print("2. Open notebooks/01_comprehensive_eda.ipynb")
-        print("3. Run the EDA notebook to explore the dataset")
+        print("1. Navigate to the project directory:")
+        print("   cd serendip-experiential-engine")
+        print("2. Start the application using Docker:")
+        print("   docker-compose up")
+        print("3. Open the frontend at http://localhost:8501")
         return 0
     else:
         print(f"\n⚠️  {total - successful} package(s) are missing.")
