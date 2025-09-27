@@ -1,0 +1,8 @@
+site_name: explainable-tourism-nlp
+#
+site_author: B M J N Balasuriya
+#
+site_description: An experiential engine for tourism using NLP
+#
+theme:
+  name: material

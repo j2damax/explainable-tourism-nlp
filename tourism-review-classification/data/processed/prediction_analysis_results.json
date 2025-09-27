@@ -1,0 +1,61 @@
+{
+  "analysis": {
+    "perfect_correct": [
+      0,
+      2,
+      3,
+      5,
+      8,
+      9,
+      12,
+      13,
+      15,
+      18
+    ],
+    "partially_correct": [
+      1,
+      10,
+      30,
+      46,
+      52,
+      54,
+      55,
+      74,
+      80,
+      94
+    ],
+    "completely_wrong": [],
+    "edge_cases": [
+      [
+        30,
+        "Missed all positive labels"
+      ],
+      [
+        52,
+        "Missed all positive labels"
+      ],
+      [
+        94,
+        "Missed all positive labels"
+      ],
+      [
+        101,
+        "Missed all positive labels"
+      ],
+      [
+        105,
+        "Missed all positive labels"
+      ]
+    ]
+  },
+  "summary": {
+    "model": "Best Model",
+    "total_examples": 3232,
+    "perfect_correct": 1218,
+    "partially_correct": 455,
+    "completely_wrong": 0,
+    "perfect_rate": 37.68564356435643,
+    "partial_rate": 14.077970297029701,
+    "wrong_rate": 0.0
+  }
+}

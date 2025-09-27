@@ -1,53 +1,70 @@
-# Aria-Core-ANN: An Explainable Neural Network for Classifying Experiential Dimensions in Sri Lankan Tourist Reviews
+# Serendip Travel - Explainable Tourism NLP Projects
 
 <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-**Multi Label Text Classification Engine**
+This repository contains two related projects focused on tourism experience analysis and classification:
 
-An explainable NLP model to classify experiential dimensions (e.g., Regenerative Tourism, Wellness, Culinary, Adventure) from Sri Lankan tourist reviews using a fine-tuned transformer architecture with SHAP explainability.
+## 1. Tourism Review Classification
 
-## Project Overview
+Located in the `tourism-review-classification` directory, this is the original research project that developed an explainable NLP model for classifying experiential dimensions in Sri Lankan tourist reviews.
 
-This project addresses the "Value Paradox" in Sri Lankan tourism by developing an AI system that can understand and quantify abstract experiential dimensions from tourist reviews. The system classifies reviews into four key dimensions:
+This project includes:
+- Data analysis and preprocessing
+- Model training and evaluation
+- Visualization and explainability components
+- Research notebooks and documentation
 
-- **Regenerative & Eco-Tourism**: Travel focused on positive social/environmental impact
-- **Integrated Wellness**: Journeys combining physical and mental well-being  
-- **Immersive Culinary**: Experiences centered on authentic local cuisine
-- **Off-the-Beaten-Path Adventure**: Exploration of less-crowded natural landscapes
+[View Tourism Review Classification Project](./tourism-review-classification/README.md)
 
-## Quick Start
+## 2. Serendip Experiential Engine
 
-### Prerequisites
+Located in the `serendip-experiential-engine` directory, this is the production-ready web application that implements the tourism review classification model in a user-friendly interface.
 
-- Python 3.10 or higher
-- Conda (recommended) or pip
-- Git
+This project includes:
+- FastAPI backend for serving the classification model
+- Streamlit frontend for interactive visualization
+- Docker containerization for easy deployment
+- Explainability features using SHAP
 
-### Installation
+[View Serendip Experiential Engine Project](./serendip-experiential-engine/README.md)
 
-#### Option 1: Using Conda (Recommended)
+## Repository Structure
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/explainable-tourism-nlp.git
-cd explainable-tourism-nlp
-
-# Create and activate conda environment
-conda env create -f environment.yml
-conda activate explainable-tourism-nlp
-
-# Verify installation
-python verify_installation.py
+```
+.
+├── tourism-review-classification/  # Original research project
+│   ├── data/                      # Dataset files
+│   ├── models/                    # Trained models
+│   ├── notebooks/                 # Research notebooks
+│   └── ...                        # Other research materials
+│
+└── serendip-experiential-engine/  # Web application
+    ├── backend/                   # FastAPI backend
+    ├── frontend/                  # Streamlit frontend
+    └── ...                        # Docker and deployment files
 ```
 
-#### Option 2: Using pip
+## Getting Started
 
+### Tourism Review Classification
+
+Follow the setup instructions in the [Tourism Review Classification README](./tourism-review-classification/README.md).
+
+### Serendip Experiential Engine
+
+1. Navigate to the web application directory:
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/explainable-tourism-nlp.git
-cd explainable-tourism-nlp
+cd serendip-experiential-engine
+```
+
+2. Start the application using Docker:
+```bash
+docker-compose up
+```
+
+3. Access the frontend at http://localhost:8501
 
 # Create virtual environment
 python -m venv venv
