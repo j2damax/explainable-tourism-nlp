@@ -19,6 +19,16 @@ This project includes:
 
 [View Tourism Review Classification Project](./tourism-review-classification/README.md)
 
+### Environment Setup
+
+Copy the `.env.example` file in the tourism-review-classification directory to `.env` and add your credentials:
+
+```bash
+cd tourism-review-classification
+cp .env.example .env
+# Edit the .env file with your credentials
+```
+
 ## 2. Serendip Experiential Engine
 
 Located in the `serendip-experiential-engine` directory, this is the production-ready web application that implements the tourism review classification model in a user-friendly interface.
@@ -29,6 +39,15 @@ This project includes:
 - Streamlit frontend for interactive visualization
 - Docker containerization for easy deployment
 - Explainability features using SHAP
+
+### Environment Setup
+
+The application is already configured with its own `.env` file in the serendip-experiential-engine directory:
+
+```bash
+cd serendip-experiential-engine
+# The .env file already exists, you can modify it as needed
+```
 
 [View Serendip Experiential Engine Project](./serendip-experiential-engine/README.md)
 
