@@ -120,11 +120,11 @@ cp .env.example serendip-experiential-engine/.env
 
 The backend API follows RESTful principles with the following endpoints:
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Health check and service status |
-| `/predict` | POST | Analyzes review text and returns dimension scores |
-| `/explain` | POST | Provides word-level explanations using SHAP |
+| Endpoint   | Method | Description                                       |
+| ---------- | ------ | ------------------------------------------------- |
+| `/`        | GET    | Health check and service status                   |
+| `/predict` | POST   | Analyzes review text and returns dimension scores |
+| `/explain` | POST   | Provides word-level explanations using SHAP       |
 
 ### 4.2 Model Integration
 
@@ -135,17 +135,17 @@ The backend integrates the `j2damax/serendip-travel-classifier` model from Huggi
 def load_model():
     """Load model and tokenizer from Hugging Face Hub"""
     global model, tokenizer, classifier
-    
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Device set to use {device}")
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     model = AutoModelForSequenceClassification.from_pretrained(
-        MODEL_NAME, 
+        MODEL_NAME,
         num_labels=NUM_LABELS,
         problem_type="multi_label_classification"
     )
     model.to(device)
-    
+
     classifier = pipeline(
         "text-classification",
         model=model,
@@ -173,14 +173,14 @@ async def predict(request: PredictRequest):
     Classify a tourism review into experiential dimensions
     """
     global model, tokenizer, classifier
-    
+
     # Ensure model is loaded
     if classifier is None:
         await load_model()
-    
+
     # Process input and get predictions
     results = classifier(request.review_text)
-    
+
     # Format response
     predictions = []
     for idx, dimension_scores in enumerate(results):
@@ -189,7 +189,7 @@ async def predict(request: PredictRequest):
                 "label": DIMENSIONS[idx],
                 "score": score_data["score"]
             })
-    
+
     return predictions
 ```
 
@@ -204,18 +204,18 @@ async def explain(request: ExplainRequest):
     Generate SHAP explanations for a prediction
     """
     global model, tokenizer, shap_explainer
-    
+
     # Initialize SHAP explainer if needed
     if shap_explainer is None:
         # Initialize explainer
         shap_explainer = ShapExplainer(model, tokenizer)
-    
+
     # Get explanations
     explanations = shap_explainer.explain_text(
         request.review_text,
         top_n_words=request.top_n_words
     )
-    
+
     return {
         "explanation": explanations
     }
@@ -226,6 +226,7 @@ async def explain(request: ExplainRequest):
 #### Predict Endpoint
 
 **Request:**
+
 ```json
 {
   "review_text": "We loved the eco-friendly resort that used solar power and served organic local food. Their conservation efforts were impressive!"
@@ -233,6 +234,7 @@ async def explain(request: ExplainRequest):
 ```
 
 **Response:**
+
 ```json
 [
   {
@@ -257,6 +259,7 @@ async def explain(request: ExplainRequest):
 #### Explain Endpoint
 
 **Request:**
+
 ```json
 {
   "review_text": "We loved the eco-friendly resort that used solar power and served organic local food. Their conservation efforts were impressive!",
@@ -265,23 +268,24 @@ async def explain(request: ExplainRequest):
 ```
 
 **Response:**
+
 ```json
 {
   "explanation": {
     "top_words": {
       "Regenerative & Eco-Tourism": [
-        {"word": "eco-friendly", "value": 0.23, "is_positive": true},
-        {"word": "conservation", "value": 0.18, "is_positive": true},
-        {"word": "solar", "value": 0.15, "is_positive": true},
-        {"word": "organic", "value": 0.12, "is_positive": true},
-        {"word": "efforts", "value": 0.08, "is_positive": true}
+        { "word": "eco-friendly", "value": 0.23, "is_positive": true },
+        { "word": "conservation", "value": 0.18, "is_positive": true },
+        { "word": "solar", "value": 0.15, "is_positive": true },
+        { "word": "organic", "value": 0.12, "is_positive": true },
+        { "word": "efforts", "value": 0.08, "is_positive": true }
       ],
       "Immersive Culinary": [
-        {"word": "organic", "value": 0.20, "is_positive": true},
-        {"word": "food", "value": 0.18, "is_positive": true},
-        {"word": "local", "value": 0.12, "is_positive": true},
-        {"word": "served", "value": 0.05, "is_positive": true},
-        {"word": "loved", "value": 0.03, "is_positive": true}
+        { "word": "organic", "value": 0.2, "is_positive": true },
+        { "word": "food", "value": 0.18, "is_positive": true },
+        { "word": "local", "value": 0.12, "is_positive": true },
+        { "word": "served", "value": 0.05, "is_positive": true },
+        { "word": "loved", "value": 0.03, "is_positive": true }
       ]
     },
     "html": "...[SHAP visualization HTML]..."
@@ -300,6 +304,7 @@ The frontend is built with Streamlit and follows a clean, intuitive design:
 ```
 
 Key UI components include:
+
 - Text input area for review submission
 - Sample reviews for quick testing
 - Visualizations of prediction scores
@@ -321,7 +326,7 @@ def analyze_review(review_text: str) -> Optional[Dict[str, Any]]:
         if not api_status["available"]:
             st.error(api_status["message"])
             return None
-            
+
         # Call predict endpoint
         predict_response = api_call_with_retry(
             requests.post,
@@ -329,21 +334,21 @@ def analyze_review(review_text: str) -> Optional[Dict[str, Any]]:
             json={"review_text": review_text},
             timeout=API_TIMEOUT_LONG
         )
-        
+
         # Call explain endpoint
         explain_response = requests.post(
             f"{API_URL}/explain",
             json={"review_text": review_text, "top_n_words": 5},
             timeout=API_TIMEOUT_SHORT
         )
-        
+
         # Format response
         predictions = predict_response.json()
         result = {
             "predictions": {item["label"]: item["score"] for item in predictions},
             "explanation": explain_response.json().get("explanation", {})
         }
-        
+
         return result
     except Exception as e:
         st.error(f"Error connecting to backend: {str(e)}")
@@ -400,17 +405,17 @@ if GENAI_AVAILABLE:
         try:
             # Run GenAI benchmark
             genai_results = run_genai_benchmark(review_text)
-            
+
             # Compare with BERT results
             comparison = compare_results(result["predictions"], genai_results)
-            
+
             # Show comparison visualizations
             col1, col2 = st.columns(2)
-            
+
             with col1:
                 st.markdown("### BERT Classification")
                 # Display BERT results
-                
+
             with col2:
                 st.markdown(f"### GenAI Classification ({model_name})")
                 # Display GenAI results
@@ -423,6 +428,7 @@ if GENAI_AVAILABLE:
 Both frontend and backend are containerized with Docker:
 
 **Frontend Dockerfile:**
+
 ```dockerfile
 FROM python:3.10-slim
 
@@ -440,6 +446,7 @@ CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0
 ```
 
 **Backend Dockerfile:**
+
 ```dockerfile
 FROM python:3.10-slim
 
@@ -499,6 +506,7 @@ networks:
 The application is deployed to Hugging Face Spaces using custom deployment scripts:
 
 **Frontend Deployment:**
+
 ```bash
 #!/bin/bash
 
@@ -583,7 +591,7 @@ echo "https://huggingface.co/spaces/$SPACE_NAME"
 async def load_model():
     """Load model and tokenizer from Hugging Face Hub on startup"""
     global model, tokenizer, classifier
-    
+
     logger.info(f"Starting API server. Model will be loaded on first request.")
     # We'll load the model on the first request to avoid timeouts
     pass
@@ -719,6 +727,7 @@ OPENAI_MODEL=gpt-3.5-turbo
 ### Appendix B: Requirements
 
 **Frontend Requirements:**
+
 ```
 streamlit>=1.32.0
 pandas
@@ -730,6 +739,7 @@ openai>=1.0.0
 ```
 
 **Backend Requirements:**
+
 ```
 fastapi
 uvicorn
@@ -766,4 +776,4 @@ serendip-experiential-engine/
 
 ---
 
-*This report was prepared for academic submission and documents the technical aspects of the Serendip Experiential Engine project.*
+_This report was prepared for academic submission and documents the technical aspects of the Serendip Experiential Engine project._

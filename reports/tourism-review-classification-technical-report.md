@@ -61,6 +61,7 @@ The dataset includes:
 - Temporal data (travel dates, publishing dates)
 
 Key statistics:
+
 - 16,156 total reviews
 - Average review length: 98 words
 - Distribution across 52 locations in Sri Lanka
@@ -70,17 +71,20 @@ Key statistics:
 
 The raw dataset underwent several preprocessing steps:
 
-1. **Text cleaning**: 
+1. **Text cleaning**:
+
    - Conversion to lowercase
    - Removal of punctuation, URLs, and special characters
    - Handling of contractions and basic normalization
 
 2. **Label creation**:
+
    - Development of lexicon-based approach for initial labeling
    - Creation of keyword lists for each experiential dimension
    - Semi-supervised labeling using keyword frequency and manual verification
 
 3. **Data splitting**:
+
    - 70% training set (12,924 reviews)
    - 15% validation set (2,423 reviews)
    - 15% test set (3,232 reviews)
@@ -195,13 +199,13 @@ BERT base (uncased) was selected as the primary model due to its balance of perf
 
 A systematic approach to hyperparameter tuning was implemented:
 
-| Parameter | Values Tested | Final Value |
-|-----------|---------------|-------------|
-| Learning Rate | 1e-5 to 5e-4 | 2e-5 |
-| Batch Size | 8, 16, 32 | 16 |
-| Epochs | 2-10 | 4 (with early stopping) |
-| Weight Decay | 0.01, 0.001 | 0.01 |
-| Dropout | 0.1-0.5 | 0.3 |
+| Parameter     | Values Tested | Final Value             |
+| ------------- | ------------- | ----------------------- |
+| Learning Rate | 1e-5 to 5e-4  | 2e-5                    |
+| Batch Size    | 8, 16, 32     | 16                      |
+| Epochs        | 2-10          | 4 (with early stopping) |
+| Weight Decay  | 0.01, 0.001   | 0.01                    |
+| Dropout       | 0.1-0.5       | 0.3                     |
 
 Grid search and early stopping were used to identify optimal hyperparameters, with model performance tracked using MLflow.
 
@@ -218,7 +222,7 @@ The training process followed a systematic approach:
 ```python
 # Model initialization code (excerpt)
 model = AutoModelForSequenceClassification.from_pretrained(
-    model_name, 
+    model_name,
     num_labels=4,
     problem_type="multi_label_classification"
 )
@@ -264,34 +268,34 @@ The model was evaluated using metrics appropriate for multi-label classification
 
 The final BERT model achieved the following performance metrics on the test set:
 
-| Metric | Overall Score | Range Across Labels |
-|--------|--------------|---------------------|
-| F1-Score | 0.9250 | 0.8954 - 0.9412 |
-| Accuracy | 0.8987 | 0.8831 - 0.9103 |
-| Precision | 0.9341 | 0.9102 - 0.9512 |
-| Recall | 0.9163 | 0.8829 - 0.9375 |
-| Hamming Loss | 0.0297 | - |
+| Metric       | Overall Score | Range Across Labels |
+| ------------ | ------------- | ------------------- |
+| F1-Score     | 0.9250        | 0.8954 - 0.9412     |
+| Accuracy     | 0.8987        | 0.8831 - 0.9103     |
+| Precision    | 0.9341        | 0.9102 - 0.9512     |
+| Recall       | 0.9163        | 0.8829 - 0.9375     |
+| Hamming Loss | 0.0297        | -                   |
 
 Individual experiential dimension performance:
 
-| Dimension | F1-Score | Precision | Recall |
-|-----------|----------|-----------|--------|
-| Regenerative & Eco-Tourism | 0.9412 | 0.9512 | 0.9375 |
-| Integrated Wellness | 0.8954 | 0.9102 | 0.8829 |
-| Immersive Culinary | 0.9301 | 0.9411 | 0.9194 |
-| Off-the-Beaten-Path Adventure | 0.9232 | 0.9338 | 0.9126 |
+| Dimension                     | F1-Score | Precision | Recall |
+| ----------------------------- | -------- | --------- | ------ |
+| Regenerative & Eco-Tourism    | 0.9412   | 0.9512    | 0.9375 |
+| Integrated Wellness           | 0.8954   | 0.9102    | 0.8829 |
+| Immersive Culinary            | 0.9301   | 0.9411    | 0.9194 |
+| Off-the-Beaten-Path Adventure | 0.9232   | 0.9338    | 0.9126 |
 
 ### 6.3 Comparative Analysis
 
 Comparison with baseline and other transformer models:
 
-| Model | F1-Score | Training Time | Model Size |
-|-------|----------|---------------|------------|
-| TF-IDF + LogReg | 0.7812 | 3 min | 25MB |
-| DistilBERT | 0.9026 | 48 min | 267MB |
-| BERT base | 0.9250 | 122 min | 438MB |
-| RoBERTa base | 0.9287 | 136 min | 498MB |
-| ALBERT base | 0.8971 | 87 min | 149MB |
+| Model           | F1-Score | Training Time | Model Size |
+| --------------- | -------- | ------------- | ---------- |
+| TF-IDF + LogReg | 0.7812   | 3 min         | 25MB       |
+| DistilBERT      | 0.9026   | 48 min        | 267MB      |
+| BERT base       | 0.9250   | 122 min       | 438MB      |
+| RoBERTa base    | 0.9287   | 136 min       | 498MB      |
+| ALBERT base     | 0.8971   | 87 min        | 149MB      |
 
 ### 6.4 Error Analysis
 
@@ -319,22 +323,22 @@ class ShapExplainer:
         self.model = model
         self.tokenizer = tokenizer
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        
+
     def explain_text(self, text, top_n_words=10):
         """Generate SHAP explanations for a given text"""
         # Tokenize input
         inputs = self.tokenizer(text, return_tensors="pt", truncation=True)
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
-        
+
         # Create explainer
         explainer = shap.Explainer(self.predict_fn, self.tokenizer)
-        
+
         # Generate explanations
         shap_values = explainer(text)
-        
+
         # Process results
         word_explanations = self._process_shap_values(shap_values, text, top_n_words)
-        
+
         return word_explanations
 ```
 
@@ -423,15 +427,19 @@ tourism-review-classifier/
 The research developed keyword lexicons for initial semi-supervised labeling:
 
 **Regenerative & Eco-Tourism**:
+
 - sustainable, eco-friendly, conservation, community, wildlife, responsible, green, environmental, local economy, preservation, nature conservation, carbon neutral, eco tourism, biodiversity
 
 **Integrated Wellness**:
+
 - wellness, ayurveda, yoga, meditation, spa, retreat, relaxation, healing, mindfulness, massage, rejuvenation, therapy, holistic, tranquil, spiritual
 
 **Immersive Culinary**:
+
 - cuisine, food, spices, flavors, traditional dishes, cooking class, culinary, local food, street food, authentic taste, gastronomy, tasting, fresh ingredients, dining experience, recipes
 
 **Off-the-Beaten-Path Adventure**:
+
 - hiking, trekking, adventure, wilderness, off-road, exploration, hidden gem, trail, undiscovered, remote, secluded, unexplored, challenging, thrill, backpacking
 
 ### Appendix C: Model Training Configuration
@@ -480,4 +488,4 @@ seaborn==0.12.2
 
 ---
 
-*This report documents the technical aspects of the Tourism Review Classification research project and serves as a foundation for academic publication and further research development.*
+_This report documents the technical aspects of the Tourism Review Classification research project and serves as a foundation for academic publication and further research development._
