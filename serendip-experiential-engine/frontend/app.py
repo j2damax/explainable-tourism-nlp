@@ -167,7 +167,7 @@ with st.container():
                             "Impact %": values
                         })
                         
-                        st.dataframe(df_words, width="stretch", hide_index=True)
+                        st.dataframe(df_words, use_container_width=True, hide_index=True)
                 
                 # Word Impact Data Table Section
                 st.markdown("## 🔍 Explainable AI Visualization")
@@ -261,7 +261,7 @@ with st.container():
                                     "Score": [f"{round(score * 100)}%" for score in result["predictions"].values()],
                                     "Category": list(bert_categories.values())
                                 })
-                                st.dataframe(bert_df, hide_index=True, width="stretch")
+                                st.dataframe(bert_df, hide_index=True, use_container_width=True)
                             
                             with col2:
                                 # Get model name from results metadata or from config
@@ -276,7 +276,7 @@ with st.container():
                                     "Dimension": list(genai_dims.keys()),
                                     "Category": list(genai_dims.values())
                                 })
-                                st.dataframe(genai_df, hide_index=True, width="stretch")
+                                st.dataframe(genai_df, hide_index=True, use_container_width=True)
                             
                             # Agreement metrics
                             agreement = comparison["agreement_percentage"]
