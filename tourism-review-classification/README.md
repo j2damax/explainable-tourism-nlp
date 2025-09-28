@@ -7,7 +7,7 @@ This directory contains the code and resources for the Tourism Review Classifica
 This project addresses the "Value Paradox" in Sri Lankan tourism by developing an AI system that can understand and quantify abstract experiential dimensions from tourist reviews. The system classifies reviews into four key dimensions:
 
 - **Regenerative & Eco-Tourism**: Travel focused on positive social/environmental impact
-- **Integrated Wellness**: Journeys combining physical and mental well-being  
+- **Integrated Wellness**: Journeys combining physical and mental well-being
 - **Immersive Culinary**: Experiences centered on authentic local cuisine
 - **Off-the-Beaten-Path Adventure**: Exploration of less-crowded natural landscapes
 

@@ -11,6 +11,7 @@ This repository contains two related projects focused on tourism experience anal
 Located in the `tourism-review-classification` directory, this is the original research project that developed an explainable NLP model for classifying experiential dimensions in Sri Lankan tourist reviews.
 
 This project includes:
+
 - Data analysis and preprocessing
 - Model training and evaluation
 - Visualization and explainability components
@@ -23,6 +24,7 @@ This project includes:
 Located in the `serendip-experiential-engine` directory, this is the production-ready web application that implements the tourism review classification model in a user-friendly interface.
 
 This project includes:
+
 - FastAPI backend for serving the classification model
 - Streamlit frontend for interactive visualization
 - Docker containerization for easy deployment
@@ -55,11 +57,13 @@ Follow the setup instructions in the [Tourism Review Classification README](./to
 ### Serendip Experiential Engine
 
 1. Navigate to the web application directory:
+
 ```bash
 cd serendip-experiential-engine
 ```
 
 2. Start the application using Docker:
+
 ```bash
 docker-compose up
 ```
@@ -67,15 +71,19 @@ docker-compose up
 3. Access the frontend at http://localhost:8501
 
 # Create virtual environment
+
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate # On Windows: venv\Scripts\activate
 
 # Install dependencies
+
 pip install -r requirements.txt
 
 # Verify installation
+
 python verify_installation.py
-```
+
+````
 
 ### Running the EDA
 
@@ -85,7 +93,7 @@ jupyter lab
 
 # Open tourism_data_cleaning_and_entity_linking.ipynb
 # Run all cells to perform exploratory data analysis
-```
+````
 
 ### Running the Web Application
 
@@ -99,6 +107,7 @@ streamlit run app.py
 The project uses the "Tourism and Travel Reviews: Sri Lankan Destinations" dataset from Mendeley Data, containing 16,156 English-language reviews of Sri Lankan destinations.
 
 **Dataset Features:**
+
 - Review text and titles
 - Location information (cities, types)
 - User demographics and ratings
@@ -138,24 +147,27 @@ The project uses the "Tourism and Travel Reviews: Sri Lankan Destinations" datas
 ## Key Technologies
 
 ### Core ML/NLP
+
 - **Transformers**: Hugging Face ecosystem for fine-tuning
 - **PyTorch**: Deep learning framework
 - **SHAP**: Explainable AI for model interpretability
 
 ### Web Deployment
+
 - **Streamlit**: Interactive web application
 - **FastAPI**: Backend API (optional)
 - **Hugging Face Spaces**: Deployment platform
 
 ### Development
+
 - **DVC**: Data version control
 - **Ruff**: Code linting and formatting
 - **Pytest**: Testing framework
 
-
 ## Usage Examples
 
 ### Running EDA
+
 ```python
 # In Jupyter notebook
 import pandas as pd
@@ -169,6 +181,7 @@ df = pd.read_csv('data/external/mendeley_sri_lanka_reviews.csv', encoding='latin
 ```
 
 ### Model Training
+
 ```python
 from tourism_review_classifier.modeling.train import train_model
 from tourism_review_classifier.config import Config
@@ -178,6 +191,7 @@ model = train_model(Config())
 ```
 
 ### Making Predictions
+
 ```python
 from tourism_review_classifier.modeling.predict import predict_review
 
@@ -207,6 +221,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 For questions about this project, please contact:
+
 - **Author**: B M J N Balasuriya
 - **Email**: COMScDS242P-009@student.nibm.lk/j2damax@gmail.com
 
