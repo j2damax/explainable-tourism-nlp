@@ -1,0 +1,36 @@
+services:
+  backend:
+    build: ./backend
+    container_name: serendip-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - LOG_LEVEL=info
+    networks:
+      - serendip-network
+    restart: always
+
+  frontend:
+    build: ./frontend
+    container_name: serendip-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./frontend:/app
+    environment:
+      - API_URL=http://backend:8000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+    networks:
+      - serendip-network
+    restart: always
+
+networks:
+  serendip-network:
+    driver: bridge

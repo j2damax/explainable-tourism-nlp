@@ -1,64 +1,160 @@
-# Aria-Core-ANN: An Explainable Neural Network for Classifying Experiential Dimensions in Sri Lankan Tourist Reviews
+# Serendip Travel - Explainable Tourism NLP Projects
 
 <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-**Multi Label Text Classification Engine**
+This repository contains two related projects focused on tourism experience analysis and classification:
 
-An explainable NLP model to classify experiential dimensions (e.g., Regenerative Tourism, Wellness, Culinary, Adventure) from Sri Lankan tourist reviews using a fine-tuned transformer architecture with SHAP explainability.
+## 1. Tourism Review Classification
 
-## Project Overview
+Located in the `tourism-review-classification` directory, this is the original research project that developed an explainable NLP model for classifying experiential dimensions in Sri Lankan tourist reviews.
 
-This project addresses the "Value Paradox" in Sri Lankan tourism by developing an AI system that can understand and quantify abstract experiential dimensions from tourist reviews. The system classifies reviews into four key dimensions:
+This project includes:
 
-- **Regenerative & Eco-Tourism**: Travel focused on positive social/environmental impact
-- **Integrated Wellness**: Journeys combining physical and mental well-being  
-- **Immersive Culinary**: Experiences centered on authentic local cuisine
-- **Off-the-Beaten-Path Adventure**: Exploration of less-crowded natural landscapes
+- Data analysis and preprocessing
+- Model training and evaluation
+- Visualization and explainability components
+- Research notebooks and documentation
 
-## Quick Start
+[View Tourism Review Classification Project](./tourism-review-classification/README.md)
 
-### Prerequisites
+### Environment Setup
 
-- Python 3.10 or higher
-- Conda (recommended) or pip
-- Git
-
-### Installation
-
-#### Option 1: Using Conda (Recommended)
+Copy the `.env.example` file in the tourism-review-classification directory to `.env` and add your credentials:
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/explainable-tourism-nlp.git
-cd explainable-tourism-nlp
-
-# Create and activate conda environment
-conda env create -f environment.yml
-conda activate explainable-tourism-nlp
-
-# Verify installation
-python verify_installation.py
+cd tourism-review-classification
+cp .env.example .env
+# Edit the .env file with your credentials
 ```
 
-#### Option 2: Using pip
+## 2. Serendip Experiential Engine
+
+Located in the `serendip-experiential-engine` directory, this is the web application that implements the tourism classification model with a user-friendly interface.
+
+### Live Demo
+
+The application is deployed on Hugging Face Spaces:
+
+- [Frontend Application](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
+- [Backend API](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
+
+### Experiential Dimensions
+
+The application analyzes tourism reviews across four key experiential dimensions:
+
+- 🌱 **Regenerative & Eco-Tourism**: Travel focused on positive social/environmental impact
+- 🧘 **Integrated Wellness**: Journeys combining physical and mental well-being
+- 🍜 **Immersive Culinary**: Experiences centered on authentic local cuisine
+- 🌄 **Off-the-Beaten-Path Adventure**: Exploration of less-crowded natural landscapes
+
+### Running Locally
+
+The application can be run locally using Docker Compose:
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/explainable-tourism-nlp.git
-cd explainable-tourism-nlp
+cd serendip-experiential-engine
+docker-compose up
+```
+
+### Deploying to Hugging Face Spaces
+
+Deployment scripts are provided for both frontend and backend services:
+
+```bash
+# Deploy backend
+cd serendip-experiential-engine/backend
+export HF_TOKEN=your_huggingface_token
+./deploy_to_huggingface.sh
+
+# Deploy frontend
+cd serendip-experiential-engine/frontend
+export HF_TOKEN=your_huggingface_token
+./deploy_to_huggingface.sh
+```
+
+## 2. Serendip Experiential Engine
+
+Located in the `serendip-experiential-engine` directory, this is the production-ready web application that implements the tourism review classification model in a user-friendly interface.
+
+This project includes:
+
+- FastAPI backend for serving the classification model
+- Streamlit frontend for interactive visualization
+- Docker containerization for easy deployment
+- Explainability features using SHAP
+
+### Environment Setup
+
+The application is already configured with its own `.env` file in the serendip-experiential-engine directory:
+
+```bash
+cd serendip-experiential-engine
+# The .env file already exists, you can modify it as needed
+```
+
+### Online Demo
+
+The application is deployed on Hugging Face Spaces:
+
+- Frontend: [https://huggingface.co/spaces/j2damax/serendip-experiential-frontend](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
+- Backend: [https://huggingface.co/spaces/j2damax/serendip-experiential-backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
+
+[View Serendip Experiential Engine Project](./serendip-experiential-engine/README.md)
+
+## Repository Structure
+
+```
+.
+├── tourism-review-classification/  # Original research project
+│   ├── data/                      # Dataset files
+│   ├── models/                    # Trained models
+│   ├── notebooks/                 # Research notebooks
+│   └── ...                        # Other research materials
+│
+└── serendip-experiential-engine/  # Web application
+    ├── backend/                   # FastAPI backend
+    ├── frontend/                  # Streamlit frontend
+    └── ...                        # Docker and deployment files
+```
+
+## Getting Started
+
+### Tourism Review Classification
+
+Follow the setup instructions in the [Tourism Review Classification README](./tourism-review-classification/README.md).
+
+### Serendip Experiential Engine
+
+1. Navigate to the web application directory:
+
+```bash
+cd serendip-experiential-engine
+```
+
+2. Start the application using Docker:
+
+```bash
+docker-compose up
+```
+
+3. Access the frontend at http://localhost:8501
 
 # Create virtual environment
+
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate # On Windows: venv\Scripts\activate
 
 # Install dependencies
+
 pip install -r requirements.txt
 
 # Verify installation
+
 python verify_installation.py
-```
+
+````
 
 ### Running the EDA
 
@@ -68,7 +164,7 @@ jupyter lab
 
 # Open tourism_data_cleaning_and_entity_linking.ipynb
 # Run all cells to perform exploratory data analysis
-```
+````
 
 ### Running the Web Application
 
@@ -82,6 +178,7 @@ streamlit run app.py
 The project uses the "Tourism and Travel Reviews: Sri Lankan Destinations" dataset from Mendeley Data, containing 16,156 English-language reviews of Sri Lankan destinations.
 
 **Dataset Features:**
+
 - Review text and titles
 - Location information (cities, types)
 - User demographics and ratings
@@ -121,24 +218,27 @@ The project uses the "Tourism and Travel Reviews: Sri Lankan Destinations" datas
 ## Key Technologies
 
 ### Core ML/NLP
+
 - **Transformers**: Hugging Face ecosystem for fine-tuning
 - **PyTorch**: Deep learning framework
 - **SHAP**: Explainable AI for model interpretability
 
 ### Web Deployment
+
 - **Streamlit**: Interactive web application
 - **FastAPI**: Backend API (optional)
 - **Hugging Face Spaces**: Deployment platform
 
 ### Development
+
 - **DVC**: Data version control
 - **Ruff**: Code linting and formatting
 - **Pytest**: Testing framework
 
-
 ## Usage Examples
 
 ### Running EDA
+
 ```python
 # In Jupyter notebook
 import pandas as pd
@@ -152,6 +252,7 @@ df = pd.read_csv('data/external/mendeley_sri_lanka_reviews.csv', encoding='latin
 ```
 
 ### Model Training
+
 ```python
 from tourism_review_classifier.modeling.train import train_model
 from tourism_review_classifier.config import Config
@@ -161,6 +262,7 @@ model = train_model(Config())
 ```
 
 ### Making Predictions
+
 ```python
 from tourism_review_classifier.modeling.predict import predict_review
 
@@ -190,6 +292,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 For questions about this project, please contact:
+
 - **Author**: B M J N Balasuriya
 - **Email**: COMScDS242P-009@student.nibm.lk/j2damax@gmail.com
 

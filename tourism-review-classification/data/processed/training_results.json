@@ -1,0 +1,69 @@
+{
+  "best_model": {
+    "config": {
+      "model": "bert-base-uncased",
+      "lr": 2e-05,
+      "bs": 8
+    },
+    "metrics": {
+      "accuracy": 0.9192450495049505,
+      "f1": 0.9240724606069328,
+      "precision": 0.951416138243007,
+      "recall": 0.8984617477023671
+    }
+  },
+  "all_results": [
+    {
+      "config": {
+        "model": "bert-base-uncased",
+        "lr": 2e-05,
+        "bs": 8
+      },
+      "metrics": {
+        "accuracy": 0.9192450495049505,
+        "f1": 0.9240724606069328,
+        "precision": 0.951416138243007,
+        "recall": 0.8984617477023671
+      }
+    },
+    {
+      "config": {
+        "model": "bert-base-uncased",
+        "lr": 2e-05,
+        "bs": 16
+      },
+      "metrics": {
+        "accuracy": 0.911509900990099,
+        "f1": 0.9213404875522173,
+        "precision": 0.9599743218607961,
+        "recall": 0.8865124921650384
+      }
+    },
+    {
+      "config": {
+        "model": "roberta-base",
+        "lr": 2e-05,
+        "bs": 8
+      },
+      "metrics": {
+        "accuracy": 0.8623143564356436,
+        "f1": 0.8634416685192672,
+        "precision": 0.9538003113682212,
+        "recall": 0.7924548091872392
+      }
+    },
+    {
+      "config": {
+        "model": "roberta-base",
+        "lr": 2e-05,
+        "bs": 16
+      },
+      "metrics": {
+        "accuracy": 0.8592202970297029,
+        "f1": 0.8544178882926283,
+        "precision": 0.9713429743061489,
+        "recall": 0.7665665868279031
+      }
+    }
+  ]
+}

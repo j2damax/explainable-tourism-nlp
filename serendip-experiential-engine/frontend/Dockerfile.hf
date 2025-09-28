@@ -1,0 +1,16 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Environment variable for connecting to backend
+# This will need to be updated with your actual backend URL once deployed
+ENV API_URL=https://your-backend-space-name.hf.space
+
+# Default Streamlit port for Hugging Face
+CMD ["streamlit", "run", "app.py", "--server.port", "7860", "--server.address", "0.0.0.0"]

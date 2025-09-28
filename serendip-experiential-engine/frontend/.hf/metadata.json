@@ -1,0 +1,7 @@
+{
+  "app_port": 7860,
+  "app_file": "app.py",
+  "docker_build_args": {
+    "API_URL": "https://j2damax-serendip-experiential-backend.hf.space"
+  }
+}
