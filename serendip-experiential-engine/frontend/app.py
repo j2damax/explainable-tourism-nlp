@@ -47,7 +47,7 @@ for dim in DIMENSIONS:
 st.markdown(description)
 
 # Sidebar
-st.sidebar.image(UI_CONFIG["logo_url"], width="stretch")
+st.sidebar.image(UI_CONFIG["logo_url"], use_column_width=True)
 st.sidebar.markdown("## About")
 st.sidebar.info(
     "Serendip Experiential Engine uses NLP and explainable AI to help tourism "
