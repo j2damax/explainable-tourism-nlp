@@ -31,6 +31,51 @@ cp .env.example .env
 
 ## 2. Serendip Experiential Engine
 
+Located in the `serendip-experiential-engine` directory, this is the web application that implements the tourism classification model with a user-friendly interface.
+
+### Live Demo
+
+The application is deployed on Hugging Face Spaces:
+
+- [Frontend Application](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
+- [Backend API](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
+
+### Experiential Dimensions
+
+The application analyzes tourism reviews across four key experiential dimensions:
+
+- 🌱 **Regenerative & Eco-Tourism**: Travel focused on positive social/environmental impact
+- 🧘 **Integrated Wellness**: Journeys combining physical and mental well-being
+- 🍜 **Immersive Culinary**: Experiences centered on authentic local cuisine
+- 🌄 **Off-the-Beaten-Path Adventure**: Exploration of less-crowded natural landscapes
+
+### Running Locally
+
+The application can be run locally using Docker Compose:
+
+```bash
+cd serendip-experiential-engine
+docker-compose up
+```
+
+### Deploying to Hugging Face Spaces
+
+Deployment scripts are provided for both frontend and backend services:
+
+```bash
+# Deploy backend
+cd serendip-experiential-engine/backend
+export HF_TOKEN=your_huggingface_token
+./deploy_to_huggingface.sh
+
+# Deploy frontend
+cd serendip-experiential-engine/frontend
+export HF_TOKEN=your_huggingface_token
+./deploy_to_huggingface.sh
+```
+
+## 2. Serendip Experiential Engine
+
 Located in the `serendip-experiential-engine` directory, this is the production-ready web application that implements the tourism review classification model in a user-friendly interface.
 
 This project includes:
@@ -48,6 +93,13 @@ The application is already configured with its own `.env` file in the serendip-e
 cd serendip-experiential-engine
 # The .env file already exists, you can modify it as needed
 ```
+
+### Online Demo
+
+The application is deployed on Hugging Face Spaces:
+
+- Frontend: [https://huggingface.co/spaces/j2damax/serendip-experiential-frontend](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
+- Backend: [https://huggingface.co/spaces/j2damax/serendip-experiential-backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
 
 [View Serendip Experiential Engine Project](./serendip-experiential-engine/README.md)
 

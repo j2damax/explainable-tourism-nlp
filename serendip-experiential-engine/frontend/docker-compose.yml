@@ -1,0 +1,2 @@
+dockerfile: Dockerfile.hf
+base_path: /app

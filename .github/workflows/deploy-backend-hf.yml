@@ -1,0 +1,42 @@
+name: Deploy to Hugging Face Spaces
+
+on:
+  push:
+    branches: [feature/web-application, main]
+    paths:
+      - "serendip-experiential-engine/backend/**"
+      - ".github/workflows/deploy-backend-hf.yml"
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Login to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git clone https://huggingface.co/spaces/j2damax/serendip-experiential-backend hf-space
+          cd hf-space
+          git config --local credential.helper "store --file=.git/credentials"
+          echo "https://USER:${HF_TOKEN}@huggingface.co" > .git/credentials
+
+      - name: Copy Backend Files
+        run: |
+          cp -r serendip-experiential-engine/backend/* hf-space/
+          cp serendip-experiential-engine/backend/Dockerfile.huggingface hf-space/Dockerfile
+
+      - name: Push to Hugging Face Space
+        run: |
+          cd hf-space
+          git add .
+          git commit -m "Update from GitHub ${GITHUB_SHA}" || echo "No changes to commit"
+          git push

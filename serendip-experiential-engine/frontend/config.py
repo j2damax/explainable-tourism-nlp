@@ -5,7 +5,9 @@ Contains all constants and settings used across the application
 import os
 
 # API Configuration
-API_URL = os.environ.get("API_URL", "http://backend:8000")
+# For local development: "http://backend:8000" or "http://localhost:8000"
+# For Hugging Face deployment: use the URL of your backend Space
+API_URL = os.environ.get("API_URL", "https://j2damax-serendip-experiential-backend.hf.space")
 API_TIMEOUT_SHORT = int(os.environ.get("API_TIMEOUT_SHORT", 30))
 API_TIMEOUT_LONG = int(os.environ.get("API_TIMEOUT_LONG", 60))
 
