@@ -100,3 +100,32 @@ This application is designed to work with the Hugging Face model j2damax/serendi
 3. Generate explanations using the word impact analysis
 
 See the main project README for details on model training and evaluation.
+
+## Hugging Face Spaces Deployment
+
+This application can be deployed to Hugging Face Spaces. For detailed instructions, see [HUGGINGFACE_DEPLOYMENT.md](./HUGGINGFACE_DEPLOYMENT.md).
+
+### Managing Storage Limits
+
+When deployed on Hugging Face Spaces, you may encounter the "Workload evicted, storage limit exceeded (50G)" error. To address this:
+
+1. **Use the provided reset script**:
+   ```bash
+   ./deploy_reset_cache.sh
+   ```
+   This script cleans temporary files, rebuilds the containers, and restarts the application with optimized settings.
+
+2. **Monitor storage usage**:
+   ```bash
+   ./monitor_storage.sh
+   ```
+   This interactive tool shows current disk usage, largest directories, and memory consumption.
+
+3. **Storage optimization features**:
+   - Temporary model storage in `/tmp` directory
+   - Automatic cache cleanup
+   - Reduced image quality for visualizations
+   - Memory-optimized model loading
+   - No persistent volumes in production
+
+If you encounter persistent issues, consult the troubleshooting section in [HUGGINGFACE_DEPLOYMENT.md](./HUGGINGFACE_DEPLOYMENT.md).
