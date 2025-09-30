@@ -48,14 +48,6 @@ st.markdown(description)
 
 # Sidebar
 st.sidebar.image(UI_CONFIG["logo_url"], use_column_width=True)
-st.sidebar.markdown("## Settings")
-# Add threshold filter option with explanation
-show_low_scores = st.sidebar.checkbox("Show low-scoring dimensions (< 5%)", value=True,
-                                     help="When unchecked, dimensions with scores less than 5% will be filtered out from visualization")
-
-# Minimum score threshold for display (as a percentage)
-min_score_threshold = 0.0 if show_low_scores else 5.0
-
 st.sidebar.markdown("## About")
 st.sidebar.info(
     "Serendip Experiential Engine uses NLP and explainable AI to help tourism "
@@ -130,14 +122,6 @@ with st.container():
                         'Score': scores_pct
                     })
                     
-                    # Apply threshold filter if enabled
-                    if not show_low_scores:
-                        filtered_df = df_scores[df_scores['Score'] >= min_score_threshold]
-                        if not filtered_df.empty:
-                            df_scores = filtered_df
-                        else:
-                            st.warning("No dimensions scored above the threshold. Showing all results.")
-                    
                     # Add a percentage sign to the scores for display
                     df_scores['Display'] = df_scores['Score'].apply(lambda x: f"{x}%")
                     
@@ -174,9 +158,18 @@ with st.container():
                     # Display the top dimension card
                     st.markdown(f"### {top_dim_info['icon']} Top Dimension")
                     
+                    # Format the score with appropriate precision based on value
+                    formatted_score = ""
+                    if top_score >= 0.1:  # 10% or higher
+                        formatted_score = f"{round(top_score * 100, 1)}%"
+                    elif top_score >= 0.01:  # 1% to 10%
+                        formatted_score = f"{round(top_score * 100, 2)}%"
+                    else:  # Less than 1%
+                        formatted_score = f"{round(top_score * 100, 3)}%"
+                    
                     st.markdown(f"""
                     <div class="dimension-card">
-                        <div class="dimension-score">{round(top_score * 100)}%</div>
+                        <div class="dimension-score">{formatted_score}</div>
                         <div class="dimension-name">{top_dim_name}</div>
                         <div class="dimension-desc">{top_dim_info['description']}</div>
                     </div>
@@ -188,12 +181,20 @@ with st.container():
                     if "explanation" in result and "top_words" in result["explanation"] and top_dim in result["explanation"]["top_words"]:
                         # Create table of top words and their importance
                         words = [item["word"] for item in result["explanation"]["top_words"][top_dim]]
-                        values = [round(item["value"] * 100, 1) for item in result["explanation"]["top_words"][top_dim]]
+                        
+                        # Format values with appropriate precision based on magnitude
+                        formatted_values = []
+                        for item in result["explanation"]["top_words"][top_dim]:
+                            value = item["value"] * 100  # Convert to percentage
+                            if abs(value) >= 0.1:  # 0.1% or higher
+                                formatted_values.append(round(value, 2))
+                            else:  # Less than 0.1%
+                                formatted_values.append(round(value, 4))
                         
                         # Create DataFrame
                         df_words = pd.DataFrame({
                             "Word": words,
-                            "Impact %": values
+                            "Impact %": formatted_values
                         })
                         
                         st.dataframe(df_words, use_container_width=True, hide_index=True)
@@ -227,7 +228,7 @@ with st.container():
                                 word_df = pd.DataFrame([
                                     {
                                         "Word": item["word"],
-                                        "Impact Value": round(item["value"] * 100, 2),
+                                        "Impact Value": round(item["value"] * 100, 4) if abs(item["value"] * 100) < 0.1 else round(item["value"] * 100, 2),
                                         "Direction": "Increases score" if item["is_positive"] else "Decreases score"
                                     } for item in words_data
                                 ])
