@@ -1,102 +1,57 @@
 # Serendip Experiential Engine
 
-A containerized application for analyzing experiential dimensions in Sri Lankan tourism reviews, featuring:
+A containerized web application for analyzing experiential dimensions in tourism reviews.
 
-- 🔍 **FastAPI Backend**: Handles text classification with NLP models and provides explainable results
-- 🖥️ **Streamlit Frontend**: Interactive UI for submitting reviews and visualizing experiential dimensions
-- 🐳 **Docker-Compose Setup**: Run both services concurrently with proper networking
+## Components
 
-## Architecture
+- 🔍 **FastAPI Backend**: Serves the NLP model with SHAP explainability
+- 🖥️ **Streamlit Frontend**: Interactive UI for visualization
+- 🐳 **Docker-Compose Setup**: Easy deployment of both services
 
-```
-serendip-experiential-engine/
-├── backend/                # FastAPI application
-│   ├── api.py              # Main API implementation
-│   ├── main.py             # Entry point
-│   └── requirements.txt    # Backend dependencies
-├── frontend/               # Streamlit application
-│   ├── app.py              # Streamlit UI
-│   ├── genai_module.py     # GenAI benchmark functionality
-│   └── requirements.txt    # Frontend dependencies
-├── notebooks/              # Jupyter notebooks
-│   └── api_usage_example.ipynb # Example of programmatic API usage
-├── Makefile                # Helpful commands for development
-└── docker-compose.yml      # Service orchestration
-```
+## Features
 
-## Getting Started
+- Tourism review analysis and classification
+- Experience dimension visualization
+- Word-level explanation using SHAP
+- Benchmark comparison with GenAI responses
 
-### Prerequisites
+## Quick Start
 
-- Docker and Docker Compose
-- Git
-
-### Quick Start
-
-1. Clone this repository
-2. Navigate to the project directory
-3. Create a `.env` file based on `.env.example` with required environment variables:
-
+1. Set up environment:
    ```bash
-   # Copy the example file
    cp .env.example .env
-
-   # Edit the file to add your OpenAI API key
-   nano .env
+   # Edit .env and add OPENAI_API_KEY
    ```
 
-4. Ensure the OpenAI API key is set correctly (required for GenAI features):
-
-   ```properties
-   # Environment variables for storage optimization
-   TRANSFORMERS_CACHE=/tmp/transformers_cache
-   HF_HOME=/tmp/hf_home
-
-   # Backend environment variables
-   PORT=8000
-   HOST=0.0.0.0
-   LOG_LEVEL=info
-
-   # Frontend environment variables
-   API_URL=http://backend:8000
-
-   # OpenAI API key for GenAI benchmark comparisons
-   OPENAI_API_KEY=your_openai_api_key_here
-   OPENAI_MODEL=gpt-3.5-turbo
-   ```
-
-5. Run `docker compose up` or `make up`
-6. Open your browser to `http://localhost:8501`
-
-### Troubleshooting
-
-If the GenAI Classification feature shows "API_KEY_MISSING", follow these steps:
-
-1. Ensure your `.env` file contains a valid OPENAI_API_KEY
-2. Restart the containers to apply the changes:
+2. Run with Docker:
    ```bash
-   docker compose down
-   docker compose up -d
-   ```
-3. Alternatively, you can run the frontend container with the API key directly:
-   ```bash
-   docker compose stop frontend
-   docker rm serendip-frontend
-   docker compose run -d -p 8501:8501 -e OPENAI_API_KEY="your_key_here" --name serendip-frontend frontend
+   docker compose up
    ```
 
-### Development Commands
+3. Open in browser:
+   ```
+   http://localhost:8501
+   ```
 
-Using the included Makefile:
+## Deployment
 
-- `make build`: Build the Docker containers
-- `make up`: Start the services
-- `make down`: Stop the services
-- `make test`: Run the tests
-- `make backend-dev`: Run the backend service locally
-- `make frontend-dev`: Run the frontend service locally
+Deploy to Hugging Face Spaces:
 
-### Development
+```bash
+export HF_TOKEN=your_huggingface_token
+./deploy_all.sh
+```
+
+## Live Demo
+
+- [Frontend](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
+- [Backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
+
+## Key Commands
+
+- `make build`: Build containers
+- `make up`: Start services
+- `make down`: Stop services
 
 #### Backend Development
 

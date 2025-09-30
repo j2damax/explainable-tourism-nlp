@@ -1,102 +1,47 @@
-# Serendip Travel - Explainable Tourism NLP Projects
+# Serendip Travel - Explainable Tourism NLP
 
-<a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
-    <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
-</a>
-
-This repository contains two related projects focused on tourism experience analysis and classification:
+This repository contains two related projects focused on analyzing and classifying tourism experiences:
 
 ## 1. Tourism Review Classification
 
-Located in the `tourism-review-classification` directory, this is the original research project that developed an explainable NLP model for classifying experiential dimensions in Sri Lankan tourist reviews.
+Research project that developed an NLP model for classifying Sri Lankan tourist reviews into four experiential dimensions.
 
-This project includes:
+- Data analysis and model training
+- BERT-based multi-label classification
+- Explainable AI using SHAP
 
-- Data analysis and preprocessing
-- Model training and evaluation
-- Visualization and explainability components
-- Research notebooks and documentation
-
-[View Tourism Review Classification Project](./tourism-review-classification/README.md)
-
-### Environment Setup
-
-Copy the `.env.example` file in the tourism-review-classification directory to `.env` and add your credentials:
-
-```bash
-cd tourism-review-classification
-cp .env.example .env
-# Edit the .env file with your credentials
-```
+[Tourism Review Classification Project](./tourism-review-classification/README.md)
 
 ## 2. Serendip Experiential Engine
 
-Located in the `serendip-experiential-engine` directory, this is the web application that implements the tourism classification model with a user-friendly interface.
+Web application that implements the tourism classification model with a user-friendly interface.
 
 ### Live Demo
-
-The application is deployed on Hugging Face Spaces:
 
 - [Frontend Application](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
 - [Backend API](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
 
 ### Experiential Dimensions
 
-The application analyzes tourism reviews across four key experiential dimensions:
-
 - 🌱 **Regenerative & Eco-Tourism**: Travel focused on positive social/environmental impact
 - 🧘 **Integrated Wellness**: Journeys combining physical and mental well-being
 - 🍜 **Immersive Culinary**: Experiences centered on authentic local cuisine
 - 🌄 **Off-the-Beaten-Path Adventure**: Exploration of less-crowded natural landscapes
 
-### Running Locally
-
-The application can be run locally using Docker Compose:
+### Quick Start
 
 ```bash
+# Run locally
 cd serendip-experiential-engine
-docker-compose up
-```
+cp .env.example .env
+# Edit .env to add OPENAI_API_KEY
+docker compose up
 
-### Deploying to Hugging Face Spaces
-
-Deployment scripts are provided for both frontend and backend services:
-
-```bash
-# Deploy backend
-cd serendip-experiential-engine/backend
-export HF_TOKEN=your_huggingface_token
-./deploy_to_huggingface.sh
-
-# Deploy frontend
-cd serendip-experiential-engine/frontend
-export HF_TOKEN=your_huggingface_token
-./deploy_to_huggingface.sh
-```
-
-## 2. Serendip Experiential Engine
-
-Located in the `serendip-experiential-engine` directory, this is the production-ready web application that implements the tourism review classification model in a user-friendly interface.
-
-This project includes:
-
-- FastAPI backend for serving the classification model
-- Streamlit frontend for interactive visualization
-- Docker containerization for easy deployment
-- Explainability features using SHAP
-
-### Environment Setup
-
-The application is already configured with its own `.env` file in the serendip-experiential-engine directory:
-
-```bash
+# Deploy to Hugging Face
 cd serendip-experiential-engine
-# The .env file already exists, you can modify it as needed
+export HF_TOKEN=your_huggingface_token
+./deploy_all.sh
 ```
-
-### Online Demo
-
-The application is deployed on Hugging Face Spaces:
 
 - Frontend: [https://huggingface.co/spaces/j2damax/serendip-experiential-frontend](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
 - Backend: [https://huggingface.co/spaces/j2damax/serendip-experiential-backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)

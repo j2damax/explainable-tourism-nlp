@@ -12,50 +12,30 @@ license: mit
 
 # Serendip Experiential Frontend
 
-This Space hosts the Streamlit frontend for the Serendip Experiential Engine, providing an interactive UI for analyzing experiential dimensions in Sri Lankan tourism reviews.
-
-## Environment Variables
-
-The frontend requires the following environment variables:
-
-- `API_URL`: URL of the backend API (default: http://backend:8000)
-- `OPENAI_API_KEY`: API key for OpenAI services (required for GenAI Classification feature)
-- `OPENAI_MODEL`: OpenAI model to use (default: gpt-3.5-turbo)
-
-### Troubleshooting "API_KEY_MISSING" Error
-
-If the GenAI Classification feature shows "API_KEY_MISSING", ensure:
-
-1. The OPENAI_API_KEY is properly set in the `.env` file in the project root
-2. The environment variable is correctly passed to the container
-3. The container has access to the environment variable
+Streamlit frontend for analyzing tourism reviews across experiential dimensions.
 
 ## Features
 
-- Submit tourism reviews for analysis
-- Visualize experiential dimension scores
-- View explainable AI insights using SHAP
-- Compare with GenAI benchmark responses
+- Interactive review analysis UI
+- Experience dimension visualization
+- SHAP-based word explanations
+- GenAI benchmark comparison
 
 ## Experiential Dimensions
 
-The application analyzes tourism reviews across four key experiential dimensions:
+- 🌱 **Regenerative & Eco-Tourism**: Sustainable travel with positive impact
+- 🧘 **Integrated Wellness**: Physical and mental well-being experiences
+- 🍜 **Immersive Culinary**: Authentic local cuisine experiences
+- 🌄 **Off-the-Beaten-Path Adventure**: Exploring less-crowded natural areas
 
-- 🌱 **Regenerative & Eco-Tourism**: Travel focused on positive social/environmental impact
-- 🧘 **Integrated Wellness**: Journeys combining physical and mental well-being
-- 🍜 **Immersive Culinary**: Experiences centered on authentic local cuisine
-- 🌄 **Off-the-Beaten-Path Adventure**: Exploration of less-crowded natural landscapes
+## Setup
 
-## Backend API
+Environment Variables:
+- `API_URL`: Backend API URL (default: http://backend:8000)
+- `OPENAI_API_KEY`: Required for GenAI comparison feature
+- `OPENAI_MODEL`: OpenAI model to use (default: gpt-3.5-turbo)
 
-This frontend connects to the [Serendip Experiential Backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend), which hosts the classification model and explainability features.
+## Links
 
-## Technologies
-
-- Streamlit
-- SHAP for explainability visualization
-- Plotly for interactive charts
-
----
-
-<a href="https://github.com/j2damax/explainable-tourism-nlp" target="_blank">View on GitHub</a>
+- Backend API: [Serendip Experiential Backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
+- GitHub: [explainable-tourism-nlp](https://github.com/j2damax/explainable-tourism-nlp)

@@ -1,39 +1,20 @@
 # Tourism Review Classification
 
-This directory contains the code and resources for the Tourism Review Classification project, which develops an explainable NLP model to classify experiential dimensions in Sri Lankan tourist reviews.
+Research project for classifying experiential dimensions in tourism reviews.
 
 ## Project Overview
 
-This project addresses the "Value Paradox" in Sri Lankan tourism by developing an AI system that can understand and quantify abstract experiential dimensions from tourist reviews. The system classifies reviews into four key dimensions:
+This project uses NLP to classify tourism reviews into four key dimensions:
 
-- **Regenerative & Eco-Tourism**: Travel focused on positive social/environmental impact
-- **Integrated Wellness**: Journeys combining physical and mental well-being
-- **Immersive Culinary**: Experiences centered on authentic local cuisine
-- **Off-the-Beaten-Path Adventure**: Exploration of less-crowded natural landscapes
+- **Regenerative & Eco-Tourism**: Sustainable travel with positive impact
+- **Integrated Wellness**: Physical and mental well-being experiences
+- **Immersive Culinary**: Authentic local cuisine experiences
+- **Off-the-Beaten-Path Adventure**: Exploring less-crowded natural areas
 
-## Directory Structure
-
-- `data/`: Contains the raw, interim, and processed data files
-- `models/`: Trained model files and model artifacts
-- `notebooks/`: Jupyter notebooks for exploratory data analysis, model training, and evaluation
-- `reports/`: Generated analysis and visualizations
-- `docs/`: Documentation files
-- `references/`: Reference materials and literature
-
-## Setup and Installation
-
-### Prerequisites
-
-- Python 3.10 or higher
-- Conda (recommended) or pip
-
-### Installation
+## Setup
 
 ```bash
-# Navigate to the project directory
-cd tourism-review-classification
-
-# Create and activate conda environment
+# Create environment
 conda env create -f environment.yml
 conda activate explainable-tourism-nlp
 
@@ -41,22 +22,17 @@ conda activate explainable-tourism-nlp
 python verify_installation.py
 ```
 
-## Usage
+## Key Notebooks
 
-The project consists of several Jupyter notebooks that should be run in sequence:
-
-1. `notebooks/01_eda.ipynb`: Exploratory data analysis
-2. `notebooks/02_feature_engineering.ipynb`: Feature engineering
+1. `notebooks/01_eda.ipynb`: Data exploration
+2. `notebooks/02_feature_engineering.ipynb`: Feature preparation
 3. `notebooks/03_modeling.ipynb`: Model selection
-4. `notebooks/04_model_training.ipynb`: Model training
-5. `notebooks/05_model_evaluation.ipynb`: Model evaluation
-6. `notebooks/06_huggingface_deployment.ipynb`: Deployment to Hugging Face
+4. `notebooks/04_model_training.ipynb`: BERT model training
+5. `notebooks/05_model_evaluation.ipynb`: Evaluation and explainability
+6. `notebooks/06_huggingface_deployment.ipynb`: Deployment
 
-## Makefile Commands
+## Results
 
-- `make requirements`: Update dependencies
-- `make lint`: Check code quality
-- `make format`: Auto-format code
-- `make test`: Run test suite
-- `make clean`: Remove compiled files
-- `make data`: Process data
+- 92% F1-score for multi-label classification
+- SHAP-based explanation of model decisions
+- Model deployed via Hugging Face Spaces
