@@ -4,12 +4,20 @@ services:
     container_name: serendip-backend
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/app
+    # Remove volumes in production to prevent filling persistent storage
+    # volumes:
+    #   - ./backend:/app
     environment:
       - PORT=8000
       - HOST=0.0.0.0
       - LOG_LEVEL=info
+      - TRANSFORMERS_CACHE=/tmp/transformers_cache
+      - HF_HOME=/tmp/hf_home
+    # Set memory limits to prevent container from using too much RAM
+    deploy:
+      resources:
+        limits:
+          memory: 3G
     networks:
       - serendip-network
     restart: always
@@ -21,12 +29,19 @@ services:
       - backend
     ports:
       - "8501:8501"
-    volumes:
-      - ./frontend:/app
+    # Remove volumes in production to prevent filling persistent storage
+    # volumes:
+    #   - ./frontend:/app
     environment:
       - API_URL=http://backend:8000
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_MODEL=${OPENAI_MODEL}
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+    # Set memory limits
+    deploy:
+      resources:
+        limits:
+          memory: 1G
     networks:
       - serendip-network
     restart: always

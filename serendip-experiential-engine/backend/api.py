@@ -1,22 +1,28 @@
 """
 API module for BertForSequenceClassification model loading and inference
+with storage optimization for Hugging Face Spaces
 """
 import os
+import shutil
+import tempfile
 from typing import List, Dict, Any, Optional
 import logging
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import torch
 import numpy as np
-import shap
 from transformers import (
     AutoTokenizer, 
     AutoModelForSequenceClassification,
     pipeline
 )
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Configure logging - use stderr to avoid filling up disk with log files
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]  # Log to stderr instead of files
+)
 logger = logging.getLogger(__name__)
 
 # Model constants
@@ -31,6 +37,13 @@ DIMENSIONS = [
     "Immersive Culinary",
     "Off-the-Beaten-Path Adventure"
 ]
+
+# Set up a temporary cache directory for HuggingFace Transformers
+# This prevents filling up the persistent storage on HF Spaces
+os.environ['TRANSFORMERS_CACHE'] = os.path.join(tempfile.gettempdir(), 'hf_transformers_cache')
+os.environ['HF_HOME'] = os.path.join(tempfile.gettempdir(), 'hf_home')
+os.makedirs(os.environ['TRANSFORMERS_CACHE'], exist_ok=True)
+os.makedirs(os.environ['HF_HOME'], exist_ok=True)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -55,18 +68,90 @@ class ExplainRequest(BaseModel):
 model = None
 tokenizer = None
 classifier = None
-shap_explainer = None
 
-@app.on_event("startup")
-async def load_model():
-    """Load model and tokenizer from Hugging Face Hub on startup"""
+def cleanup_unused_files():
+    """Clean up temporary files and caches to save space"""
+    try:
+        # Clear transformers cache
+        cache_dir = os.environ.get('TRANSFORMERS_CACHE')
+        if cache_dir and os.path.exists(cache_dir):
+            logger.info(f"Cleaning up transformers cache: {cache_dir}")
+            # Instead of deleting everything, just remove files older than 1 hour
+            import time
+            for root, dirs, files in os.walk(cache_dir):
+                for f in files:
+                    file_path = os.path.join(root, f)
+                    try:
+                        if time.time() - os.path.getmtime(file_path) > 3600:
+                            os.remove(file_path)
+                    except Exception as e:
+                        logger.warning(f"Error removing file {file_path}: {str(e)}")
+        
+        # Remove other temp files
+        temp_dir = tempfile.gettempdir()
+        for f in os.listdir(temp_dir):
+            if f.startswith('tmp') and not f.endswith('.py'):
+                try:
+                    file_path = os.path.join(temp_dir, f)
+                    if os.path.isfile(file_path) and time.time() - os.path.getmtime(file_path) > 3600:
+                        os.remove(file_path)
+                except Exception:
+                    pass
+    except Exception as e:
+        logger.warning(f"Error during cleanup: {str(e)}")
+
+def load_model_if_needed():
+    """Load the model and tokenizer if they're not already loaded"""
     global model, tokenizer, classifier
     
-    logger.info(f"Starting API server. Model will be loaded on first request.")
+    if model is None or tokenizer is None or classifier is None:
+        try:
+            logger.info("Loading model and tokenizer...")
+            
+            # Clean up any existing cache to prevent storage issues
+            cleanup_unused_files()
+            
+            # Use device setting
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            logger.info(f"Using device: {device}")
+            
+            # Load tokenizer
+            tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+            
+            # Load model with optimization settings
+            model = AutoModelForSequenceClassification.from_pretrained(
+                MODEL_NAME, 
+                num_labels=NUM_LABELS,
+                problem_type="multi_label_classification",
+                low_cpu_mem_usage=True  # Lower memory usage
+            )
+            
+            # Create classifier pipeline
+            classifier = pipeline(
+                "text-classification", 
+                model=model, 
+                tokenizer=tokenizer,
+                function_to_apply="sigmoid", 
+                top_k=None,
+                device=-1 if device == "cpu" else 0
+            )
+            
+            logger.info("Model loaded successfully!")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to load model: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to load model: {str(e)}")
     
-    # We'll load the model on the first request to make startup faster
-    # and avoid timeouts during container initialization
-    pass
+    return True
+
+@app.on_event("startup")
+async def startup_event():
+    """Run startup tasks"""
+    logger.info("Starting API server. Model will be loaded on first request.")
+    
+    # Clean up unused files from previous runs
+    import time  # Required for cleanup function
+    cleanup_unused_files()
 
 @app.get("/")
 def read_root():
@@ -87,30 +172,8 @@ async def predict(request: PredictRequest):
     
     This endpoint processes the review text and returns prediction scores for all dimensions.
     """
-    global model, tokenizer, classifier
-    
-    # Ensure model is loaded
-    if classifier is None:
-        try:
-            device = "cuda" if torch.cuda.is_available() else "cpu"
-            print(f"Device set to use {device}")
-            tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-            model = AutoModelForSequenceClassification.from_pretrained(
-                MODEL_NAME, 
-                num_labels=NUM_LABELS,
-                problem_type="multi_label_classification"
-            )
-            classifier = pipeline(
-                "text-classification", 
-                model=model, 
-                tokenizer=tokenizer,
-                function_to_apply="sigmoid", 
-                top_k=None,
-                device=-1 if device == "cpu" else 0
-            )
-            print("Model and classifier initialized successfully")
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to load model: {str(e)}")
+    # Load model if needed (using our new optimized function)
+    load_model_if_needed()
     
     try:
         logger.info(f"Processing review: {request.review_text[:50]}...")
@@ -190,28 +253,8 @@ async def explain(request: ExplainRequest):
     This endpoint returns both HTML visualization and top influencing words,
     using a simple attribution method for reliability.
     """
-    global model, tokenizer, classifier
-    
-    # Check if model is loaded
-    if model is None or tokenizer is None:
-        try:
-            tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-            model = AutoModelForSequenceClassification.from_pretrained(
-                MODEL_NAME, 
-                num_labels=NUM_LABELS,
-                problem_type="multi_label_classification"
-            )
-            classifier = pipeline(
-                "text-classification", 
-                model=model, 
-                tokenizer=tokenizer,
-                function_to_apply="sigmoid", 
-                top_k=None,
-                device=-1 if not torch.cuda.is_available() else 0
-            )
-        except Exception as e:
-            logger.error(f"Failed to load model: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Failed to load model: {str(e)}")
+    # Load model if needed (using our new optimized function)
+    load_model_if_needed()
     
     try:
         # Get the input text
@@ -303,74 +346,60 @@ async def explain(request: ExplainRequest):
             # Extract top words for visualization
             top_words_for_viz = top_words[top_dimension]
             
-            # Create figure with a larger size for better visualization
-            fig, ax = plt.subplots(figsize=(16, 8))
+            # Configure matplotlib to use smaller sizes and lower quality to save memory
+            plt.rcParams['figure.dpi'] = 80  # Lower DPI
+            plt.rcParams['savefig.dpi'] = 100  # Lower save DPI
             
-            # Prepare data for visualization
-            viz_words = [item["word"] for item in top_words_for_viz[:10]]
-            viz_values = [item["value"] for item in top_words_for_viz[:10]]
+            # Create figure with a smaller size to reduce memory usage
+            fig, ax = plt.subplots(figsize=(8, 5))
             
-            # Create horizontal bar chart with improved styling
+            # Prepare data for visualization - limit to top 8 words to reduce image size
+            viz_words = [item["word"] for item in top_words_for_viz[:8]]
+            viz_values = [item["value"] for item in top_words_for_viz[:8]]
+            
+            # Create horizontal bar chart with simplified styling
             bars = ax.barh(
                 viz_words,
                 viz_values,
                 color=['#FF4444' if v > 0 else '#3366CC' for v in viz_values],
-                height=0.7,  # Slightly thinner bars for better spacing
-                edgecolor='black',  # Add outline for better visibility
-                linewidth=0.5,
-                alpha=0.8
+                height=0.7,
+                edgecolor='black',
+                linewidth=0.5
             )
             
-            # Add labels and title with improved styling
-            ax.set_title(f"Words influencing '{top_dimension}'", fontsize=16, fontweight='bold')
-            ax.set_xlabel("Impact on classification score", fontsize=14)
+            # Add simple labels and title
+            ax.set_title(f"Words influencing '{top_dimension}'", fontsize=12)
+            ax.set_xlabel("Impact on score", fontsize=10)
             
-            # Improve grid and background
-            ax.set_axisbelow(True)  # Put gridlines below the bars
-            ax.grid(axis='x', linestyle='--', alpha=0.7)
-            ax.set_facecolor('#f9f9f9')  # Light background
+            # Add a vertical line at x=0 with simplified styling
+            ax.axvline(x=0, color='black', linestyle='-', linewidth=1)
             
-            # Add a vertical line at x=0 with improved styling
-            ax.axvline(x=0, color='black', linestyle='-', alpha=0.7, linewidth=1.5)
-            
-            # Add value labels with improved styling
-            for bar in bars:
-                width = bar.get_width()
-                label_x_pos = width + 0.01 if width > 0 else width - 0.01
-                ax.text(
-                    label_x_pos, 
-                    bar.get_y() + bar.get_height()/2, 
-                    f'{width:.3f}',
-                    va='center',
-                    ha='left' if width > 0 else 'right',
-                    color='black',
-                    fontweight='bold',
-                    fontsize=10
-                )
-            
-            # Add legend to explain colors
+            # Add simple legend to explain colors
             from matplotlib.patches import Patch
             legend_elements = [
                 Patch(facecolor='#FF4444', edgecolor='black', label='Increases score'),
                 Patch(facecolor='#3366CC', edgecolor='black', label='Decreases score')
             ]
-            ax.legend(handles=legend_elements, loc='lower right')
+            ax.legend(handles=legend_elements, loc='lower right', fontsize=8)
             
-            # Convert plot to HTML image with higher resolution
+            # Convert plot to HTML image with lower resolution
             buffer = BytesIO()
             fig.tight_layout()
-            fig.savefig(buffer, format='png', dpi=150, bbox_inches='tight', transparent=False)
+            plt.savefig(buffer, format='png', dpi=80, bbox_inches='tight')
             buffer.seek(0)
             img_str = base64.b64encode(buffer.read()).decode()
             
-            # Create HTML with both inline image and standalone image for flexibility
+            # Create simplified HTML with inline image
             html = f"""
             <div style="text-align: center;">
                 <h3>Words influencing '{top_dimension}'</h3>
-                <img src="data:image/png;base64,{img_str}" style="width:100%; max-width:1200px; border: 1px solid #ddd; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" />
-                <p style="margin-top: 10px; font-style: italic;">Red bars indicate words that increase the prediction score, blue bars decrease it.</p>
+                <img src="data:image/png;base64,{img_str}" style="width:100%; max-width:600px;" />
+                <p>Red bars increase prediction score, blue bars decrease it.</p>
             </div>
             """
+            
+            # Close the figure to free memory
+            plt.close(fig)
             plt.close(fig)
             
         except Exception as viz_error:
@@ -389,12 +418,25 @@ async def explain(request: ExplainRequest):
         logger.error(f"Error during explanation: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Explanation error: {str(e)}")
 
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean up resources when shutting down"""
+    logger.info("Shutting down API server")
+    cleanup_unused_files()
+    
+    # Clear global model references to help garbage collection
+    global model, tokenizer, classifier
+    model = None
+    tokenizer = None
+    classifier = None
+
 if __name__ == "__main__":
     import uvicorn
+    import time  # Required for cleanup function
     
     # Determine the host and port from environment variables or use defaults
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", 8000))
     
-    # Run the application
-    uvicorn.run("api:app", host=host, port=port, reload=True)
+    # Run the application - disable reload in production to save memory
+    uvicorn.run("api:app", host=host, port=port, reload=False)
