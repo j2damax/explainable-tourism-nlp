@@ -90,6 +90,24 @@ htmlcov/
 venv/
 .venv/" > .gitignore
 
+# Get OpenAI API key from environment or .env file
+OPENAI_API_KEY_VALUE=""
+if [ -n "$OPENAI_API_KEY" ]; then
+    echo "Using OPENAI_API_KEY from environment variables"
+    OPENAI_API_KEY_VALUE=$OPENAI_API_KEY
+elif [ -f "$LOCAL_DIR/../.env" ] && grep -q "OPENAI_API_KEY" "$LOCAL_DIR/../.env"; then
+    echo "Using OPENAI_API_KEY from .env file"
+    OPENAI_API_KEY_VALUE=$(grep "OPENAI_API_KEY" "$LOCAL_DIR/../.env" | cut -d '=' -f2- | sed 's/^"//' | sed 's/"$//')
+fi
+
+# Determine OpenAI model
+OPENAI_MODEL_VALUE="gpt-3.5-turbo"
+if [ -n "$OPENAI_MODEL" ]; then
+    OPENAI_MODEL_VALUE=$OPENAI_MODEL
+elif [ -f "$LOCAL_DIR/../.env" ] && grep -q "OPENAI_MODEL" "$LOCAL_DIR/../.env"; then
+    OPENAI_MODEL_VALUE=$(grep "OPENAI_MODEL" "$LOCAL_DIR/../.env" | cut -d '=' -f2- | sed 's/^"//' | sed 's/"$//')
+fi
+
 # Create Hugging Face Space metadata file
 mkdir -p .hf
 cat > .hf/metadata.json << EOL
@@ -97,7 +115,9 @@ cat > .hf/metadata.json << EOL
     "app_port": 7860,
     "app_file": "app.py",
     "docker_build_args": {
-        "API_URL": "https://j2damax-serendip-experiential-backend.hf.space"
+        "API_URL": "https://j2damax-serendip-experiential-backend.hf.space",
+        "OPENAI_API_KEY": "$OPENAI_API_KEY_VALUE",
+        "OPENAI_MODEL": "$OPENAI_MODEL_VALUE"
     }
 }
 EOL

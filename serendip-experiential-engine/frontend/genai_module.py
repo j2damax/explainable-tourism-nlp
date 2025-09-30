@@ -11,7 +11,21 @@ from typing import Dict, List, Any
 from config import DIMENSIONS, SCORE_THRESHOLDS, SAMPLE_REVIEWS, OPENAI_MODEL_DEFAULT, COST_PER_1K_TOKENS
 
 # Initialize OpenAI client with API key validation
-api_key = os.environ.get("OPENAI_API_KEY", "")
+from dotenv import load_dotenv
+from api_key_fix import get_openai_api_key
+
+# Try to load from .env file first (for local development)
+load_dotenv()
+
+# Try multiple approaches to get the API key
+api_key = get_openai_api_key()
+
+# Debug information
+print(f"DEBUG: OpenAI API key found: {'Yes' if api_key else 'No'}")
+print(f"DEBUG: OpenAI API key length: {len(api_key) if api_key else 0}")
+if api_key:
+    print(f"DEBUG: First few characters of key: {api_key[:5]}... (if available)")
+
 if not api_key:
     print("WARNING: OpenAI API key not found in environment variables.")
     print("GenAI comparison functionality will not be available.")

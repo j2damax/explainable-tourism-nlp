@@ -14,6 +14,22 @@ license: mit
 
 This Space hosts the Streamlit frontend for the Serendip Experiential Engine, providing an interactive UI for analyzing experiential dimensions in Sri Lankan tourism reviews.
 
+## Environment Variables
+
+The frontend requires the following environment variables:
+
+- `API_URL`: URL of the backend API (default: http://backend:8000)
+- `OPENAI_API_KEY`: API key for OpenAI services (required for GenAI Classification feature)
+- `OPENAI_MODEL`: OpenAI model to use (default: gpt-3.5-turbo)
+
+### Troubleshooting "API_KEY_MISSING" Error
+
+If the GenAI Classification feature shows "API_KEY_MISSING", ensure:
+
+1. The OPENAI_API_KEY is properly set in the `.env` file in the project root
+2. The environment variable is correctly passed to the container
+3. The container has access to the environment variable
+
 ## Features
 
 - Submit tourism reviews for analysis

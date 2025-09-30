@@ -10,6 +10,25 @@ if [ -z "$HF_TOKEN" ]; then
     exit 1
 fi
 
+# Check if OPENAI_API_KEY is set
+if [ -z "$OPENAI_API_KEY" ]; then
+    echo "Warning: OPENAI_API_KEY environment variable not set"
+    echo "GenAI Classification features will not work without an OpenAI API key"
+    echo "You can set it with: export OPENAI_API_KEY=your_openai_api_key"
+    
+    # Check if it's in .env file
+    if [ -f ".env" ] && grep -q "OPENAI_API_KEY" .env; then
+        echo "Found OPENAI_API_KEY in .env file. Will use that for deployment."
+    else
+        echo "Consider adding OPENAI_API_KEY to your .env file for GenAI features"
+        read -p "Do you want to continue anyway? (y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            exit 1
+        fi
+    fi
+fi
+
 # Define the project root directory
 PROJECT_ROOT="$(pwd)"
 BACKEND_DIR="$PROJECT_ROOT/backend"
