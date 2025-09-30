@@ -98,7 +98,8 @@ with st.container():
                 # Display results
                 st.markdown("## 📊 Experience Dimension Analysis")
                 
-                col1, col2 = st.columns(2)
+                # Use wider column for chart to ensure all labels are visible
+                col1, col2 = st.columns([3, 2])
                 
                 with col1:
                     # Create a bar chart of dimension scores
@@ -140,8 +141,22 @@ with st.container():
                     fig.update_layout(
                         xaxis_title="Confidence Score (%)",
                         yaxis_title=None,
-                        height=300,
-                        xaxis=dict(range=[0, 100])  # Set x-axis range from 0 to 100 for percentages
+                        height=400,  # Increased height for better visibility
+                        margin=dict(l=180, r=20, t=30, b=50),  # Increased left margin for dimension labels
+                        xaxis=dict(range=[0, 100]),  # Set x-axis range from 0 to 100 for percentages
+                        yaxis=dict(
+                            tickmode='array',
+                            tickvals=list(range(len(dimensions))),
+                            ticktext=dimensions,
+                            tickfont=dict(size=14)  # Larger font for dimension names
+                        )
+                    )
+                    
+                    # Improve text display and position
+                    fig.update_traces(
+                        textposition='outside',
+                        textfont=dict(size=14),
+                        insidetextanchor='middle'
                     )
                     
                     st.plotly_chart(fig, use_container_width=True)
