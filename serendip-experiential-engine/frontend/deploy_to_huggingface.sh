@@ -130,9 +130,9 @@ git commit -m "Deploy frontend to Hugging Face Spaces"
 
 # Push to Hugging Face Spaces
 echo "Pushing to Hugging Face Spaces..."
-# Use stored credential helper instead of embedding in URL
-git remote add origin "https://huggingface.co/spaces/$SPACE_NAME"
-git push -f origin main
+# Push directly using full URL
+echo "Pushing to Hugging Face with token authentication..."
+git push -f "https://oauth2:$HF_TOKEN@huggingface.co/spaces/$SPACE_NAME" main
 
 # Clean up
 cd - > /dev/null

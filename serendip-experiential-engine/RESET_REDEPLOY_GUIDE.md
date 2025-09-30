@@ -93,6 +93,7 @@ docker-compose logs -f
    - Limit the number of visualizations stored
 
 4. **Implement regular cleanup**:
+
    - Add a cron job for periodic cleanup
    - Set up automatic file pruning based on age or size
 

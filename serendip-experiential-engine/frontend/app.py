@@ -70,9 +70,12 @@ with st.container():
         review_text = sample_select
         st.text_area("Review text:", sample_select, height=150)
     
-    # Initialize session state for caching
+    # Initialize session state for caching (with size limit for Hugging Face)
     if 'analysis_cache' not in st.session_state:
         st.session_state.analysis_cache = {}
+    
+    # Limit cache size to prevent storage issues on Hugging Face
+    MAX_CACHE_ENTRIES = 5  # Limit to the 5 most recent analyses
     
     # Analyze button
     if st.button("Analyze Experience Dimensions", type="primary"):
@@ -88,8 +91,14 @@ with st.container():
                     # Call backend API
                     result = analyze_review(review_text)
                     
-                    # Cache the result if successful
+                    # Cache the result if successful with size limit enforcement
                     if result:
+                        # Trim cache if it's too large
+                        if len(st.session_state.analysis_cache) >= MAX_CACHE_ENTRIES:
+                            # Convert to list to get the first (oldest) key
+                            oldest_key = list(st.session_state.analysis_cache.keys())[0]
+                            del st.session_state.analysis_cache[oldest_key]
+                        
                         st.session_state.analysis_cache[review_text] = result
             
             if result:
@@ -102,64 +111,63 @@ with st.container():
                 col1, col2 = st.columns([3, 2])
                 
                 with col1:
-                    # Create a bar chart of dimension scores
+                    # Create a simple table showing all dimensions and their scores
                     dimensions = list(result["predictions"].keys())
                     scores = list(result["predictions"].values())
                     
-                    # Convert scores to percentages
-                    # Use different precision based on score value
-                    scores_pct = []
+                    # Convert scores to percentages with appropriate precision
+                    formatted_scores = []
                     for score in scores:
                         if score >= 0.1:  # 10% or higher
-                            scores_pct.append(round(score * 100, 1))
+                            formatted_scores.append(f"{round(score * 100, 1)}%")
                         elif score >= 0.01:  # 1% to 10%
-                            scores_pct.append(round(score * 100, 2))
+                            formatted_scores.append(f"{round(score * 100, 2)}%")
                         else:  # Less than 1%
-                            scores_pct.append(round(score * 100, 3))
+                            formatted_scores.append(f"{round(score * 100, 3)}%")
                     
-                    # Create dataframe for plotting
-                    df_scores = pd.DataFrame({
-                        'Dimension': dimensions,
-                        'Score': scores_pct
+                    # Create a DataFrame for the table
+                    df_dimensions = pd.DataFrame({
+                        "Dimension": dimensions,
+                        "Confidence Score": formatted_scores
                     })
                     
-                    # Add a percentage sign to the scores for display
-                    df_scores['Display'] = df_scores['Score'].apply(lambda x: f"{x}%")
+                    # Add icons to dimension names if available
+                    dimension_icons = {}
+                    for dim in DIMENSIONS:
+                        dimension_icons[dim['name']] = dim['icon']
                     
-                    fig = px.bar(
-                        df_scores,
-                        y='Dimension',
-                        x='Score',
-                        orientation='h',
-                        color='Score',
-                        color_continuous_scale='Viridis',
-                        labels={'Score': 'Confidence Score (%)'},
-                        text='Display',  # Use the formatted display text
-                        # No need for text_auto when using pre-formatted text
+                    # Add icons to dimension names
+                    df_dimensions['Dimension with Icon'] = df_dimensions['Dimension'].apply(
+                        lambda x: f"{dimension_icons.get(x, '')} {x}" if x in dimension_icons else x
                     )
                     
-                    fig.update_layout(
-                        xaxis_title="Confidence Score (%)",
-                        yaxis_title=None,
-                        height=400,  # Increased height for better visibility
-                        margin=dict(l=180, r=20, t=30, b=50),  # Increased left margin for dimension labels
-                        xaxis=dict(range=[0, 100]),  # Set x-axis range from 0 to 100 for percentages
-                        yaxis=dict(
-                            tickmode='array',
-                            tickvals=list(range(len(dimensions))),
-                            ticktext=dimensions,
-                            tickfont=dict(size=14)  # Larger font for dimension names
-                        )
-                    )
+                    # Reorder columns to use the version with icons
+                    df_dimensions = df_dimensions[['Dimension with Icon', 'Confidence Score']]
+                    df_dimensions.columns = ['Dimension', 'Confidence Score']
                     
-                    # Improve text display and position
-                    fig.update_traces(
-                        textposition='outside',
-                        textfont=dict(size=14),
-                        insidetextanchor='middle'
-                    )
+                    # Sort by confidence score (descending)
+                    df_dimensions = df_dimensions.sort_values(by='Confidence Score', ascending=False)
                     
-                    st.plotly_chart(fig, use_container_width=True)
+                    # Display the table with custom styling
+                    st.markdown("### All Dimension Scores")
+                    st.markdown("All four experiential dimensions are shown below, sorted by confidence score:")
+                    
+                    # Create a stylish table
+                    st.dataframe(
+                        df_dimensions,
+                        use_container_width=True,
+                        hide_index=True,
+                        column_config={
+                            "Dimension": st.column_config.TextColumn(
+                                "Dimension",
+                                width="medium",
+                            ),
+                            "Confidence Score": st.column_config.TextColumn(
+                                "Confidence Score",
+                                width="small",
+                            ),
+                        },
+                    )
                 
                 with col2:
                     # Find top dimension

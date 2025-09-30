@@ -36,31 +36,35 @@ serendip-experiential-engine/
 1. Clone this repository
 2. Navigate to the project directory
 3. Create a `.env` file based on `.env.example` with required environment variables:
+
    ```bash
    # Copy the example file
    cp .env.example .env
-   
+
    # Edit the file to add your OpenAI API key
    nano .env
    ```
+
 4. Ensure the OpenAI API key is set correctly (required for GenAI features):
+
    ```properties
    # Environment variables for storage optimization
    TRANSFORMERS_CACHE=/tmp/transformers_cache
    HF_HOME=/tmp/hf_home
-   
+
    # Backend environment variables
    PORT=8000
    HOST=0.0.0.0
    LOG_LEVEL=info
-   
+
    # Frontend environment variables
    API_URL=http://backend:8000
-   
+
    # OpenAI API key for GenAI benchmark comparisons
    OPENAI_API_KEY=your_openai_api_key_here
    OPENAI_MODEL=gpt-3.5-turbo
    ```
+
 5. Run `docker compose up` or `make up`
 6. Open your browser to `http://localhost:8501`
 
