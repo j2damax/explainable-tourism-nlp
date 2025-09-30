@@ -1,6 +1,9 @@
 # Ignore environment variable files
 .env
 
+# Reports - temporarily ignored
+/reports/
+
 # Data
 /data/*
 !/data/external/
