@@ -122,13 +122,15 @@ with st.container():
                         color='Score',
                         color_continuous_scale='Viridis',
                         labels={'Score': 'Confidence Score (%)'},
-                        text='Score'
+                        text='Score',
+                        text_auto='.1f'  # Format text to 1 decimal place with % sign
                     )
                     
                     fig.update_layout(
                         xaxis_title="Confidence Score (%)",
                         yaxis_title=None,
-                        height=300
+                        height=300,
+                        xaxis=dict(range=[0, 100])  # Set x-axis range from 0 to 100 for percentages
                     )
                     
                     st.plotly_chart(fig, use_container_width=True)
