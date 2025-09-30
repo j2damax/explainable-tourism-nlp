@@ -48,6 +48,14 @@ st.markdown(description)
 
 # Sidebar
 st.sidebar.image(UI_CONFIG["logo_url"], use_column_width=True)
+st.sidebar.markdown("## Settings")
+# Add threshold filter option with explanation
+show_low_scores = st.sidebar.checkbox("Show low-scoring dimensions (< 5%)", value=True,
+                                     help="When unchecked, dimensions with scores less than 5% will be filtered out from visualization")
+
+# Minimum score threshold for display (as a percentage)
+min_score_threshold = 0.0 if show_low_scores else 5.0
+
 st.sidebar.markdown("## About")
 st.sidebar.info(
     "Serendip Experiential Engine uses NLP and explainable AI to help tourism "
@@ -106,13 +114,32 @@ with st.container():
                     scores = list(result["predictions"].values())
                     
                     # Convert scores to percentages
-                    scores_pct = [round(score * 100, 1) for score in scores]
+                    # Use different precision based on score value
+                    scores_pct = []
+                    for score in scores:
+                        if score >= 0.1:  # 10% or higher
+                            scores_pct.append(round(score * 100, 1))
+                        elif score >= 0.01:  # 1% to 10%
+                            scores_pct.append(round(score * 100, 2))
+                        else:  # Less than 1%
+                            scores_pct.append(round(score * 100, 3))
                     
                     # Create dataframe for plotting
                     df_scores = pd.DataFrame({
                         'Dimension': dimensions,
                         'Score': scores_pct
                     })
+                    
+                    # Apply threshold filter if enabled
+                    if not show_low_scores:
+                        filtered_df = df_scores[df_scores['Score'] >= min_score_threshold]
+                        if not filtered_df.empty:
+                            df_scores = filtered_df
+                        else:
+                            st.warning("No dimensions scored above the threshold. Showing all results.")
+                    
+                    # Add a percentage sign to the scores for display
+                    df_scores['Display'] = df_scores['Score'].apply(lambda x: f"{x}%")
                     
                     fig = px.bar(
                         df_scores,
@@ -122,8 +149,8 @@ with st.container():
                         color='Score',
                         color_continuous_scale='Viridis',
                         labels={'Score': 'Confidence Score (%)'},
-                        text='Score',
-                        text_auto='.1f'  # Format text to 1 decimal place with % sign
+                        text='Display',  # Use the formatted display text
+                        # No need for text_auto when using pre-formatted text
                     )
                     
                     fig.update_layout(
