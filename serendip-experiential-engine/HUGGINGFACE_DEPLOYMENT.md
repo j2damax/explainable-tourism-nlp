@@ -80,6 +80,7 @@ The Hugging Face Spaces deployment has been optimized to avoid storage limit err
    ```
 
 6. **Commit and push to Hugging Face**:
+
    ```bash
    git add .
    git commit -m "Deploy Serendip Travel Engine with storage optimizations"
@@ -87,18 +88,20 @@ The Hugging Face Spaces deployment has been optimized to avoid storage limit err
    ```
 
 7. **Monitor the deployment**:
+
    - Check your Space's build logs for errors
    - Monitor storage usage regularly with the commands below:
+
    ```bash
    # Check disk usage
    df -h /
-   
+
    # Monitor Docker containers
    docker ps -a
-   
+
    # View application logs
    docker-compose logs -f
-   
+
    # Monitor space usage growth over time
    watch -n 60 "df -h / && echo '---------' && du -sh /tmp/* 2>/dev/null"
    ```
@@ -108,7 +111,7 @@ The Hugging Face Spaces deployment has been optimized to avoid storage limit err
 The repository includes a `deploy_reset_cache.sh` script that automates the process of cleaning up storage and redeploying the application:
 
 1. **SSH into your Hugging Face Space**:
-   
+
    - Go to your Space settings
    - Find the SSH option and connect to your Space
 
@@ -121,6 +124,7 @@ The repository includes a `deploy_reset_cache.sh` script that automates the proc
    ```
 
 The script will:
+
 - Clean up temporary files, model caches, and Docker resources
 - Stop running containers
 - Rebuild containers without using cache
@@ -144,10 +148,10 @@ If you still encounter storage limit issues after running the deployment script:
    find /tmp -type f -name "*.safetensors" -delete
    find /tmp -type f -name "*.bin" -delete
    find / -path "*/huggingface/hub/*" -type f -size +10M -delete
-   
+
    # Clean Docker resources
    docker system prune -af --volumes
-   
+
    # Remove Python cache
    find / -name "__pycache__" -type d -exec rm -rf {} +
    find / -name "*.pyc" -delete
@@ -160,7 +164,7 @@ If you still encounter storage limit issues after running the deployment script:
    - Modify the model loading with quantization parameters:
      ```python
      model = AutoModelForSequenceClassification.from_pretrained(
-         MODEL_NAME, 
+         MODEL_NAME,
          num_labels=NUM_LABELS,
          problem_type="multi_label_classification",
          low_cpu_mem_usage=True,
