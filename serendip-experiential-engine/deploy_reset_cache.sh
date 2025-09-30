@@ -35,8 +35,32 @@ export PYTHONUNBUFFERED=1
 export PIP_NO_CACHE_DIR=1
 export STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
-# Add these environment variables to the .env file
-echo "Step 6: Updating .env file..."
+# Add these environment variables to the .env file while preserving other variables
+echo "Step 6: Updating .env file with storage optimization while preserving other variables..."
+if [ -f .env ]; then
+    # Create a backup of the existing .env file
+    cp .env .env.backup
+    
+    # Extract the OpenAI API key from the existing .env file
+    OPENAI_API_KEY=$(grep "OPENAI_API_KEY" .env.backup | cut -d '=' -f2-)
+    OPENAI_MODEL=$(grep "OPENAI_MODEL" .env.backup | cut -d '=' -f2-)
+    
+    # If no OpenAI API key found in the current .env, use a default value
+    if [ -z "$OPENAI_API_KEY" ]; then
+        echo "No OpenAI API key found in current .env, checking for key in tourism-review-classification/.env"
+        if [ -f ../tourism-review-classification/.env ]; then
+            OPENAI_API_KEY=$(grep "OPENAI_API_KEY" ../tourism-review-classification/.env | cut -d '=' -f2-)
+            echo "Using API key from tourism-review-classification/.env"
+        fi
+    fi
+    
+    # If OPENAI_MODEL is not found, use a default value
+    if [ -z "$OPENAI_MODEL" ]; then
+        OPENAI_MODEL="gpt-3.5-turbo"
+    fi
+fi
+
+# Create the new .env file with both storage optimization and existing variables
 cat > .env << EOF
 # Environment variables for storage optimization
 TRANSFORMERS_CACHE=/tmp/transformers_cache
@@ -45,6 +69,18 @@ PYTHONDONTWRITEBYTECODE=1
 PYTHONUNBUFFERED=1
 PIP_NO_CACHE_DIR=1
 STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+
+# Backend environment variables
+PORT=8000
+HOST=0.0.0.0
+LOG_LEVEL=info
+
+# Frontend environment variables
+API_URL=http://backend:8000
+
+# OpenAI API key for GenAI benchmark comparisons
+OPENAI_API_KEY=${OPENAI_API_KEY}
+OPENAI_MODEL=${OPENAI_MODEL}
 EOF
 
 # Start the application

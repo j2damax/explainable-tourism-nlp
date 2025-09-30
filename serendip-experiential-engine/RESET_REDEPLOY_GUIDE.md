@@ -75,15 +75,19 @@ docker-compose logs -f
 ### Storage-Saving Tips
 
 1. **Use temporary storage**:
+
    - Set `TRANSFORMERS_CACHE` and `HF_HOME` environment variables to `/tmp`
    - This prevents model files from filling persistent storage
+   - **Important**: Make sure to preserve other essential environment variables (e.g., OpenAI API keys)
 
 2. **Reduce model size**:
+
    - Consider using a smaller model variant
    - Use quantization with `load_in_8bit=True`
    - Disable unnecessary model features
 
 3. **Limit visualization quality**:
+
    - Use lower DPI settings for matplotlib (80 instead of 300)
    - Reduce image sizes and quality
    - Limit the number of visualizations stored
@@ -91,6 +95,11 @@ docker-compose logs -f
 4. **Implement regular cleanup**:
    - Add a cron job for periodic cleanup
    - Set up automatic file pruning based on age or size
+
+5. **Preserve API keys and credentials**:
+   - When updating the `.env` file, make sure to preserve essential API keys (like OPENAI_API_KEY)
+   - The updated `deploy_reset_cache.sh` script now preserves these keys during redeployment
+   - If GenAI Classification shows "API_KEY_MISSING", check that the OPENAI_API_KEY is present in your `.env` file
 
 ### Monitoring Best Practices
 
@@ -104,10 +113,12 @@ docker-compose logs -f
 If you still encounter issues, consider:
 
 1. **Contacting Hugging Face Support**:
+
    - Share your Space URL and error details
    - Ask about increasing storage limits
 
 2. **External Model Hosting**:
+
    - Host your model on a separate service
    - Configure the application to download the model on demand
 
