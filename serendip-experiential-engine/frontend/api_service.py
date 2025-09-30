@@ -152,8 +152,9 @@ def analyze_review(review_text: str) -> Optional[Dict[str, Any]]:
                 pass
             return None
         
-        # Call explain endpoint
-        explain_response = requests.post(
+        # Call explain endpoint with retry mechanism
+        explain_response = api_call_with_retry(
+            requests.post,
             f"{API_URL}/explain",
             json={"review_text": review_text, "top_n_words": 5},
             timeout=API_TIMEOUT_SHORT
