@@ -78,7 +78,6 @@ cat > .hf/metadata.json << EOL
     "app_file": "app.py",
     "docker_build_args": {
         "API_URL": "https://j2damax-serendip-experiential-backend.hf.space",
-        "OPENAI_API_KEY": "$OPENAI_API_KEY_VALUE",
         "TRANSFORMERS_CACHE": "/tmp/transformers_cache",
         "HF_HOME": "/tmp/hf_home",
         "PYTHONDONTWRITEBYTECODE": "1",
