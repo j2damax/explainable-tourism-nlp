@@ -1,38 +1,46 @@
 # Serendip Travel - Explainable Tourism NLP
 
-An AI-powered system for analyzing experiential dimensions in tourism reviews with explainable results.
+An AI-powered system for analyzing experiential dimensions in tourism reviews with explainable results and interactive visualizations.
 
 ## Project Overview
 
 This repository contains two integrated components:
 
-1. **Tourism Review Classification** - Research-focused ML project
-2. **Serendip Experiential Engine** - Production web application
+1. **Tourism Review Classification** - Research-focused ML project that trains and evaluates BERT-based classification models on Sri Lankan tourism reviews
+2. **Serendip Experiential Engine** - Production web application with an intuitive interface for analyzing tourism reviews in real-time
 
 ## Project Structure
 
 ```
 explainable-tourism-nlp/
-├── tourism-review-classification/  # Research component
-│   ├── data/                       # Tourism review datasets
-│   ├── notebooks/                  # Analysis notebooks
-│   ├── models/                     # Trained models
-│   └── reports/                    # Results and figures
-└── serendip-experiential-engine/   # Web application
-    ├── backend/                    # FastAPI service
-    └── frontend/                   # Streamlit interface
+├── tourism-review-classification/  # Research ML component
+│   ├── data/                       # Tourism review datasets (DVC managed)
+│   ├── notebooks/                  # Analysis and training notebooks
+│   ├── models/                     # Trained BERT models
+│   └── reports/                    # Evaluation results and figures
+└── serendip-experiential-engine/   # Production web application
+    ├── backend/                    # FastAPI service with model serving
+    └── frontend/                   # Streamlit interactive interface
 ```
 
 ## Experiential Dimensions
 
-The system analyzes four key experiential dimensions:
+The system analyzes tourism reviews across four key experiential dimensions:
 
-- 🌱 **Regenerative & Eco-Tourism**: Sustainable travel with positive impact
-- 🧘 **Integrated Wellness**: Physical and mental well-being experiences
-- 🍜 **Immersive Culinary**: Authentic local cuisine experiences
-- 🌄 **Off-the-Beaten-Path Adventure**: Exploring less-crowded landscapes
+- 🌱 **Regenerative & Eco-Tourism**: Sustainable travel experiences with positive environmental and social impact
+- 🧘 **Integrated Wellness**: Experiences focused on physical and mental well-being
+- 🍜 **Immersive Culinary**: Authentic local cuisine and food-related experiences
+- 🌄 **Off-the-Beaten-Path Adventure**: Exploration of less-crowded natural areas and unique activities
 
-## Deployment
+## Features
+
+- **Multi-label Classification**: Analyzes reviews across all four dimensions simultaneously
+- **Explainable AI**: SHAP-based word-level explanations for model decisions
+- **Interactive Visualization**: Intuitive radar charts and word highlighting
+- **GenAI Comparison**: Optional comparison with GPT responses for validation
+- **High Accuracy**: 92% F1-score on multi-label classification tasks
+
+## Getting Started
 
 ### Local Setup
 
@@ -51,190 +59,164 @@ docker compose up
 
 ### Live Demo
 
-- **Frontend**: [https://huggingface.co/spaces/j2damax/serendip-experiential-frontend](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
-- **Backend API**: [https://huggingface.co/spaces/j2damax/serendip-experiential-backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
+- **Frontend**: [Serendip Experiential Frontend](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend) - Interactive web interface
+- **Backend API**: [Serendip Experiential Backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend) - REST API with model serving
 
-- Frontend: [https://huggingface.co/spaces/j2damax/serendip-experiential-frontend](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
-- Backend: [https://huggingface.co/spaces/j2damax/serendip-experiential-backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
+## Component Documentation
 
-[View Serendip Experiential Engine Project](./serendip-experiential-engine/README.md)
+For detailed documentation of each component:
 
-## Repository Structure
+- [Tourism Review Classification](./tourism-review-classification/README.md) - Research project documentation
+- [Serendip Experiential Engine](./serendip-experiential-engine/README.md) - Web application documentation
+  - [Backend API](./serendip-experiential-engine/backend/README.md) - FastAPI service
+  - [Frontend](./serendip-experiential-engine/frontend/README.md) - Streamlit application
 
-```
-.
-├── tourism-review-classification/  # Original research project
-│   ├── data/                      # Dataset files
-│   ├── models/                    # Trained models
-│   ├── notebooks/                 # Research notebooks
-│   └── ...                        # Other research materials
-│
-└── serendip-experiential-engine/  # Web application
-    ├── backend/                   # FastAPI backend
-    ├── frontend/                  # Streamlit frontend
-    └── ...                        # Docker and deployment files
-```
-
-## Getting Started
+## Usage
 
 ### Tourism Review Classification
 
-Follow the setup instructions in the [Tourism Review Classification README](./tourism-review-classification/README.md).
+For model training and research:
+
+```bash
+# Navigate to the research project
+cd tourism-review-classification
+
+# Create environment
+conda env create -f environment.yml
+conda activate explainable-tourism-nlp
+
+# Verify installation
+python verify_installation.py
+```
 
 ### Serendip Experiential Engine
 
-1. Navigate to the web application directory:
+For running the web application:
 
 ```bash
+# Navigate to the web application
 cd serendip-experiential-engine
-```
 
-2. Start the application using Docker:
-
-```bash
+# Start with Docker
 docker-compose up
-```
 
-3. Access the frontend at http://localhost:8501
-
-# Create virtual environment
-
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-
-pip install -r requirements.txt
-
-# Verify installation
-
-python verify_installation.py
-
-````
-
-### Running the EDA
-
-```bash
-# Start Jupyter Lab
-jupyter lab
-
-# Open tourism_data_cleaning_and_entity_linking.ipynb
-# Run all cells to perform exploratory data analysis
-````
-
-### Running the Web Application
-
-```bash
-# Start the Streamlit app
-streamlit run app.py
+# Access the frontend at http://localhost:8501
 ```
 
 ## Dataset
 
-The project uses the "Tourism and Travel Reviews: Sri Lankan Destinations" dataset from Mendeley Data, containing 16,156 English-language reviews of Sri Lankan destinations.
+The project uses the "Tourism and Travel Reviews: Sri Lankan Destinations" dataset from Mendeley Data, containing 16,156 English-language reviews of Sri Lankan tourist destinations.
 
 **Dataset Features:**
 
 - Review text and titles
-- Location information (cities, types)
-- User demographics and ratings
-- Temporal data
+- Location information (cities, attraction types)
+- User demographics and ratings (1-5 stars)
+- Temporal data (visit dates, seasons)
 
-## 🏗️ Project Structure
+## Technologies
+
+### Machine Learning & NLP
+
+- **Hugging Face Transformers**: BERT model fine-tuning and inference
+- **PyTorch**: Deep learning framework for model training
+- **SHAP**: Explainable AI for word-level feature importance
+- **scikit-learn**: Evaluation metrics and preprocessing
+
+### Web Development
+
+- **Streamlit**: Interactive web interface with visualizations
+- **FastAPI**: High-performance REST API for model serving
+- **Docker**: Containerization for consistent deployment
+- **Hugging Face Spaces**: Hosting platform for both components
+
+## Development Tools
+
+- **DVC**: Data version control for large files
+- **Ruff & Black**: Code linting and formatting
+- **Pytest**: Test automation
+- **MkDocs**: Documentation generation
+
+## Project Organization
 
 ```
-├── LICENSE                    <- MIT License
-├── Makefile                   <- Convenience commands
-├── README.md                  <- This file
-├── environment.yml            <- Conda environment specification
-├── requirements.txt           <- Pip requirements
-├── pyproject.toml            <- Project configuration
-├── data/
-│   ├── external/             <- Original dataset (mendeley_sri_lanka_reviews.csv)
-│   ├── interim/              <- Processed data
-│   └── processed/            <- Final datasets for modeling
-├── notebooks/
-│   ├── 01_comprehensive_eda.ipynb           <- Exploratory Data Analysis
-│   ├── 02_data_preprocessing.ipynb          <- Data cleaning and preprocessing
-│   ├── 03_model_training.ipynb              <- Model training and evaluation
-│   └── 04_explainable_ai.ipynb              <- SHAP explanations
-├── tourism-review-classifier/ <- Source code
-│   ├── config.py             <- Configuration settings
-│   ├── dataset.py            <- Dataset handling
-│   ├── features.py           <- Feature engineering
-│   ├── modeling/
-│   │   ├── train.py          <- Model training
-│   │   └── predict.py        <- Model inference
-│   └── plots.py              <- Visualization utilities
-├── models/                   <- Trained models
-├── reports/                  <- Generated reports and figures
-└── docs/                     <- Documentation
+explainable-tourism-nlp/
+│
+├── tourism-review-classification/   # Research component
+│   ├── data/                        # Datasets managed by DVC
+│   │   ├── external/                # Original dataset files
+│   │   ├── interim/                 # Intermediate processed data
+│   │   └── processed/               # Final datasets for modeling
+│   │
+│   ├── models/                      # Trained model files
+│   ├── notebooks/                   # Analysis notebooks
+│   │   ├── 01_eda.ipynb             # Data exploration
+│   │   ├── 02_feature_engineering.ipynb  # Feature preparation
+│   │   ├── 03_modeling.ipynb        # Model selection
+│   │   ├── 04_model_training.ipynb  # BERT training
+│   │   ├── 05_model_evaluation.ipynb  # Evaluation metrics
+│   │   └── 06_huggingface_deployment.ipynb  # Deployment
+│   │
+│   └── reports/                     # Generated analysis reports
+│       └── figures/                 # Generated graphics and plots
+│
+└── serendip-experiential-engine/    # Web application
+    ├── backend/                     # FastAPI service
+    │   ├── app/                     # Application code
+    │   ├── Dockerfile               # Container configuration
+    │   └── requirements.txt         # Python dependencies
+    │
+    ├── frontend/                    # Streamlit interface
+    │   ├── app.py                   # Main application
+    │   ├── components/              # UI components
+    │   └── utils/                   # Utility functions
+    │
+    └── docker-compose.yml           # Multi-container setup
 ```
 
-## Key Technologies
+## Example Usage
 
-### Core ML/NLP
-
-- **Transformers**: Hugging Face ecosystem for fine-tuning
-- **PyTorch**: Deep learning framework
-- **SHAP**: Explainable AI for model interpretability
-
-### Web Deployment
-
-- **Streamlit**: Interactive web application
-- **FastAPI**: Backend API (optional)
-- **Hugging Face Spaces**: Deployment platform
-
-### Development
-
-- **DVC**: Data version control
-- **Ruff**: Code linting and formatting
-- **Pytest**: Testing framework
-
-## Usage Examples
-
-### Running EDA
+### Research Component
 
 ```python
-# In Jupyter notebook
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+# Using the trained model for prediction
+from tourism_review_classification.modeling.predict import predict
 
-# Load data
-df = pd.read_csv('data/external/mendeley_sri_lanka_reviews.csv', encoding='latin1')
+review_text = "We stayed at an eco-friendly resort surrounded by nature. They use solar power and have a zero-waste policy. The yoga classes each morning were rejuvenating, and we enjoyed authentic local cuisine made with ingredients from their organic garden."
 
-# Perform analysis (see notebooks/01_comprehensive_eda.ipynb)
-```
-
-### Model Training
-
-```python
-from tourism_review_classifier.modeling.train import train_model
-from tourism_review_classifier.config import Config
-
-# Train the model
-model = train_model(Config())
-```
-
-### Making Predictions
-
-```python
-from tourism_review_classifier.modeling.predict import predict_review
-
-# Classify a review
-review_text = "Amazing eco-friendly resort with authentic local cuisine"
-predictions = predict_review(review_text)
+predictions = predict(review_text)
 print(predictions)
+
+# Output:
+# {
+#    'regenerative_eco_tourism': 0.92,
+#    'integrated_wellness': 0.78,
+#    'immersive_culinary': 0.85,
+#    'off_beaten_path': 0.45
+# }
 ```
 
-## Contributing
+### Web Application
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+The Streamlit interface allows:
+
+1. **Input Review Text**: Enter or paste any tourism review
+2. **View Predictions**: See scores for each experiential dimension
+3. **Explore Explanations**: Understand which words influenced each prediction
+4. **Compare with GenAI**: (Optional) View comparison with OpenAI's analysis
+
+## Citing This Work
+
+If you use this project in your research, please cite it using:
+
+```bibtex
+@software{balasuriya2023serendip,
+  author = {Balasuriya, B M J N},
+  title = {Explainable Tourism NLP: Multi-label Classification of Experiential Dimensions},
+  year = {2023},
+  url = {https://github.com/j2damax/explainable-tourism-nlp}
+}
+```
 
 ## License
 
@@ -243,13 +225,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - **Dataset**: Tourism and Travel Reviews: Sri Lankan Destinations (Mendeley Data)
+- **Infrastructure**: Hugging Face Spaces for deployment hosting
 - **Framework**: Cookiecutter Data Science Project Template
 
 ## Contact
 
-For questions about this project, please contact:
+For questions or feedback about this project:
 
 - **Author**: B M J N Balasuriya
-- **Email**: COMScDS242P-009@student.nibm.lk/j2damax@gmail.com
+- **Email**: j2damax@gmail.com
 
 ---
