@@ -1,47 +1,58 @@
 # Serendip Travel - Explainable Tourism NLP
 
-This repository contains two related projects focused on analyzing and classifying tourism experiences:
+An AI-powered system for analyzing experiential dimensions in tourism reviews with explainable results.
 
-## 1. Tourism Review Classification
+## Project Overview
 
-Research project that developed an NLP model for classifying Sri Lankan tourist reviews into four experiential dimensions.
+This repository contains two integrated components:
 
-- Data analysis and model training
-- BERT-based multi-label classification
-- Explainable AI using SHAP
+1. **Tourism Review Classification** - Research-focused ML project
+2. **Serendip Experiential Engine** - Production web application
 
-[Tourism Review Classification Project](./tourism-review-classification/README.md)
+## Project Structure
 
-## 2. Serendip Experiential Engine
+```
+explainable-tourism-nlp/
+├── tourism-review-classification/  # Research component
+│   ├── data/                       # Tourism review datasets
+│   ├── notebooks/                  # Analysis notebooks
+│   ├── models/                     # Trained models
+│   └── reports/                    # Results and figures
+└── serendip-experiential-engine/   # Web application
+    ├── backend/                    # FastAPI service
+    └── frontend/                   # Streamlit interface
+```
 
-Web application that implements the tourism classification model with a user-friendly interface.
+## Experiential Dimensions
+
+The system analyzes four key experiential dimensions:
+
+- 🌱 **Regenerative & Eco-Tourism**: Sustainable travel with positive impact
+- 🧘 **Integrated Wellness**: Physical and mental well-being experiences
+- 🍜 **Immersive Culinary**: Authentic local cuisine experiences
+- 🌄 **Off-the-Beaten-Path Adventure**: Exploring less-crowded landscapes
+
+## Deployment
+
+### Local Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/j2damax/explainable-tourism-nlp.git
+cd explainable-tourism-nlp/serendip-experiential-engine
+
+# Configure environment
+cp .env.example .env
+# Edit .env to add OPENAI_API_KEY
+
+# Run with Docker
+docker compose up
+```
 
 ### Live Demo
 
-- [Frontend Application](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
-- [Backend API](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
-
-### Experiential Dimensions
-
-- 🌱 **Regenerative & Eco-Tourism**: Travel focused on positive social/environmental impact
-- 🧘 **Integrated Wellness**: Journeys combining physical and mental well-being
-- 🍜 **Immersive Culinary**: Experiences centered on authentic local cuisine
-- 🌄 **Off-the-Beaten-Path Adventure**: Exploration of less-crowded natural landscapes
-
-### Quick Start
-
-```bash
-# Run locally
-cd serendip-experiential-engine
-cp .env.example .env
-# Edit .env to add OPENAI_API_KEY
-docker compose up
-
-# Deploy to Hugging Face
-cd serendip-experiential-engine
-export HF_TOKEN=your_huggingface_token
-./deploy_all.sh
-```
+- **Frontend**: [https://huggingface.co/spaces/j2damax/serendip-experiential-frontend](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
+- **Backend API**: [https://huggingface.co/spaces/j2damax/serendip-experiential-backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
 
 - Frontend: [https://huggingface.co/spaces/j2damax/serendip-experiential-frontend](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
 - Backend: [https://huggingface.co/spaces/j2damax/serendip-experiential-backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)

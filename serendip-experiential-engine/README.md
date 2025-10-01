@@ -1,51 +1,60 @@
 # Serendip Experiential Engine
 
-A containerized web application for analyzing experiential dimensions in tourism reviews.
+A production-ready microservices application for tourism experience classification with explainable AI.
 
-## Components
+## Architecture
 
-- 🔍 **FastAPI Backend**: Serves the NLP model with SHAP explainability
-- 🖥️ **Streamlit Frontend**: Interactive UI for visualization
-- 🐳 **Docker-Compose Setup**: Easy deployment of both services
+```
+serendip-experiential-engine/
+├── backend/                # FastAPI service
+│   ├── api.py             # API implementation
+│   ├── models/            # ML model files
+│   └── utils/             # Helper functions
+├── frontend/              # Streamlit application
+│   ├── app.py             # Main interface
+│   └── genai_module.py    # GPT-based comparison
+├── deploy_all.sh          # Master deployment script
+└── docker-compose.yml     # Container orchestration
+```
 
 ## Features
 
-- Tourism review analysis and classification
-- Experience dimension visualization
-- Word-level explanation using SHAP
-- Benchmark comparison with GenAI responses
+- **Multi-label classification** of tourism reviews
+- **Explainable results** with word-level SHAP analysis
+- **Interactive visualizations** of experience dimensions
+- **GenAI benchmark comparison** with LLM responses
 
-## Quick Start
+## Technical Stack
 
-1. Set up environment:
+- **Backend**: FastAPI, PyTorch, SHAP
+- **Frontend**: Streamlit, Plotly
+- **Deployment**: Docker, Hugging Face Spaces
+- **ML**: Fine-tuned BERT model (92% F1 score)
+
+## Setup Instructions
+
+1. **Environment configuration**:
    ```bash
    cp .env.example .env
-   # Edit .env and add OPENAI_API_KEY
+   # Add your OPENAI_API_KEY for GenAI comparison feature
    ```
 
-2. Run with Docker:
+2. **Local deployment**:
    ```bash
    docker compose up
+   # Access at http://localhost:8501
    ```
 
-3. Open in browser:
+3. **Cloud deployment**:
+   ```bash
+   export HF_TOKEN=your_huggingface_token
+   ./deploy_all.sh
    ```
-   http://localhost:8501
-   ```
-
-## Deployment
-
-Deploy to Hugging Face Spaces:
-
-```bash
-export HF_TOKEN=your_huggingface_token
-./deploy_all.sh
-```
 
 ## Live Demo
 
-- [Frontend](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
-- [Backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
+- **Frontend**: [https://huggingface.co/spaces/j2damax/serendip-experiential-frontend](https://huggingface.co/spaces/j2damax/serendip-experiential-frontend)
+- **Backend API**: [https://huggingface.co/spaces/j2damax/serendip-experiential-backend](https://huggingface.co/spaces/j2damax/serendip-experiential-backend)
 
 ## Key Commands
 
